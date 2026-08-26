@@ -21,6 +21,9 @@ WHERE group_id IN (SELECT group_id FROM group_account WHERE join_date < '2019-12
 -- Question 7: Lấy ra ID của question có >= 4 câu trả lời 
 SELECT question_id FROM answer 
 GROUP BY question_id HAVING COUNT(answer_id >= 4);
+-- Sai cú pháp, sửa lại:
+SELECT question_id FROM answer 
+GROUP BY question_id HAVING COUNT(answer_id) >= 4;
 
 -- Question 8: Lấy ra các mã đề thi có thời gian thi >= 60 phút và được tạo trước ngày 20/12/2019
 SELECT code FROM exam 

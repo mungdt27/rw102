@@ -79,11 +79,23 @@ HAVING COUNT(a.account_id) = (
 );
 
 -- Question 11: Thống kê mỗi phòng ban có bao nhiêu dev, test, scrum master, PM   
+-- Cách 1:
 SELECT d.department_id, d.department_name, p.position_name, COUNT(a.account_id) AS employee_quantity
 FROM department d
 LEFT JOIN `account` a ON d.department_id = a.department_id
 LEFT JOIN `position` p ON a.position_id = p.position_id
 GROUP BY d.department_id, p.position_id;
+
+-- Cách 2:
+SELECT d.department_id,d.department_name,
+    COUNT(CASE WHEN p.position_name = 'DEV' THEN 1 END) AS DEV,
+    COUNT(CASE WHEN p.position_name = 'TEST' THEN 1 END) AS TEST,
+    COUNT(CASE WHEN p.position_name = 'SCRUM_MASTER' THEN 1 END) AS SCRUM_MASTER,
+    COUNT(CASE WHEN p.position_name = 'PM' THEN 1 END) AS PM
+FROM department d
+LEFT JOIN account a ON d.department_id = a.department_id
+LEFT JOIN position p ON a.position_id = p.position_id
+GROUP BY d.department_id;
 
 -- Question 12: Lấy thông tin chi tiết của câu hỏi bao gồm: thông tin cơ bản của question, loại câu hỏi, ai là người tạo ra câu hỏi, câu trả lời là gì, … 
 SELECT q.question_id, q.content AS question_content, c.category_name, tq.type_name,
