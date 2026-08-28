@@ -6,6 +6,7 @@ ON a.department_id = d.department_id
 WHERE d.department_name = "Sale";
 
 -- Question 2: Tạo view có chứa thông tin các account tham gia vào nhiều group nhất
+-- Cách 1:
 CREATE VIEW v_account_most_group
 AS SELECT a.* FROM `account` a JOIN group_account ga
 ON a.account_id = ga.account_id 
@@ -17,6 +18,17 @@ HAVING COUNT(ga.group_id) = (
 			GROUP BY ga.account_id
 		) AS result
 );
+
+-- Cách 2: tối ưu hơn do có kết hợp view với cte, tốc độ truy vấn sẽ nhanh hơn
+CREATE VIEW question2 AS
+WITH cte_q2 AS (
+	SELECT a.*, count(a.account_id) AS so_luong
+    FROM ACCOUNT a
+    JOIN group_account ga ON a.account_id = ga.account_id
+    GROUP BY a.account_id
+)
+SELECT * FROM cte_q2
+WHERE so_luong = (SELECT max(so_luong) FROM cte_q2);
 
 -- Question 3: Tạo view có chứa câu hỏi có những content quá dài (content quá 300 từ được coi là quá dài) và xóa nó đi
 CREATE VIEW v_question_content 
