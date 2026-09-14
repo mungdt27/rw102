@@ -3,8 +3,8 @@ import java.time.LocalDate;
 public class Question {
     int id;
     String content;
-    CategoryQuestion categoryQuestion;
-    TypeQuestion typeQuestion;
-    Account account;
+    CategoryQuestion category;
+    TypeQuestion type;
+    Account creator;
     LocalDate createDate;
 }

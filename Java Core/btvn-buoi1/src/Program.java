@@ -44,7 +44,7 @@ public class Program {
         Account acc1 = new Account();
         acc1.id = 1;
         acc1.email = "a.nguyen@gmail.com";
-        acc1.userName = "vana";
+        acc1.username = "vana";
         acc1.fullName = "Nguyen Van A";
         acc1.department = dep1;
         acc1.position = pos1;
@@ -53,7 +53,7 @@ public class Program {
         Account acc2 = new Account();
         acc2.id = 2;
         acc2.email = "b.nguyen@gmail.com";
-        acc2.userName = "vanb";
+        acc2.username = "vanb";
         acc2.fullName = "Nguyen Van B";
         acc2.department = dep2;
         acc2.position = pos2;
@@ -62,7 +62,7 @@ public class Program {
         Account acc3 = new Account();
         acc3.id = 3;
         acc3.email = "c.nguyen@gmail.com";
-        acc3.userName = "vanc";
+        acc3.username = "vanc";
         acc3.fullName = "Nguyen Van C";
         acc3.department = dep1;
         acc3.position = pos4;
@@ -71,7 +71,7 @@ public class Program {
         System.out.println("=== Account ===");
         System.out.println("Account ID: " + acc1.id);
         System.out.println("Email: " + acc1.email);
-        System.out.println("Username: " + acc1.userName);
+        System.out.println("Username: " + acc1.username);
         System.out.println("Full Name: " + acc1.fullName);
         System.out.println("Department ID: " + acc1.department.id);
         System.out.println("Position ID: " + acc1.position.id);
@@ -81,25 +81,25 @@ public class Program {
         Group group1 = new Group();
         group1.id = 1;
         group1.name = "Team Java";
-        group1.account = acc1;
+        group1.creator = acc1;
         group1.createDate = LocalDate.now();
 
         Group group2 = new Group();
         group2.id = 2;
         group2.name = "Tester Team";
-        group2.account = acc3;
+        group2.creator = acc3;
         group2.createDate = LocalDate.now();
 
         Group group3 = new Group();
         group3.id = 3;
         group3.name = "FE Team";
-        group3.account = acc2;
+        group3.creator = acc2;
         group3.createDate = LocalDate.now();
 
         System.out.println("=== Group ===");
         System.out.println("Group ID: " + group1.id);
         System.out.println("Group Name: " + group1.name);
-        System.out.println("Creator ID: " + group1.account.id);
+        System.out.println("Creator ID: " + group1.creator.id);
         System.out.println("Create Date: " + group1.createDate);
 
         // Table GroupAccount
@@ -157,33 +157,33 @@ public class Program {
         Question ques1 = new Question();
         ques1.id = 1;
         ques1.content = "What is inheritance in Java?";
-        ques1.categoryQuestion = cq1;
-        ques1.typeQuestion = tq2;
-        ques1.account = acc1;
+        ques1.category = cq1;
+        ques1.type = tq2;
+        ques1.creator = acc1;
         ques1.createDate = LocalDate.now();
 
         Question ques2 = new Question();
         ques2.id = 2;
         ques2.content = "What is a primary key in SQL?";
-        ques2.categoryQuestion = cq2;
-        ques2.typeQuestion = tq2;
-        ques2.account = acc2;
+        ques2.category = cq2;
+        ques2.type = tq2;
+        ques2.creator = acc2;
         ques2.createDate = LocalDate.now();
 
         Question ques3 = new Question();
         ques3.id = 3;
         ques3.content = "What is the difference between INNER JOIN and LEFT JOIN?";
-        ques3.categoryQuestion = cq2;
-        ques3.typeQuestion = tq2;
-        ques3.account = acc2;
+        ques3.category = cq2;
+        ques3.type = tq2;
+        ques3.creator = acc2;
         ques3.createDate = LocalDate.now();
 
         System.out.println("=== Question ===");
         System.out.println("Question ID: " + ques1.id);
         System.out.println("Content: " + ques1.content);
-        System.out.println("Category ID: " + ques1.categoryQuestion.id);
-        System.out.println("Type ID: " + ques1.typeQuestion.id);
-        System.out.println("Creator ID: " + ques1.account.id);
+        System.out.println("Category ID: " + ques1.category.id);
+        System.out.println("Type ID: " + ques1.type.id);
+        System.out.println("Creator ID: " + ques1.creator.id);
         System.out.println("Create Date: " + ques1.createDate);
 
         // Table Answer
@@ -216,33 +216,33 @@ public class Program {
         exam1.id = 1;
         exam1.code = "SQL01";
         exam1.title = "SQL Fundamental Test";
-        exam1.categoryQuestion = cq2;
+        exam1.category = cq2;
         exam1.duration = 45;
-        exam1.account = acc2;
+        exam1.creator = acc2;
 
         Exam exam2 = new Exam();
         exam2.id = 2;
         exam2.code = "TEST01";
         exam2.title = "Software Testing Basic Test";
-        exam2.categoryQuestion = cq3;
+        exam2.category = cq3;
         exam2.duration = 60;
-        exam2.account = acc3;
+        exam2.creator = acc3;
 
         Exam exam3 = new Exam();
         exam3.id = 3;
         exam3.code = "JAVA01";
         exam3.title = "Java Basic Test";
-        exam3.categoryQuestion = cq1;
+        exam3.category = cq1;
         exam3.duration = 45;
-        exam3.account = acc1;
+        exam3.creator = acc1;
 
         System.out.println("=== Exam ===");
         System.out.println("Exam ID: " + exam1.id);
         System.out.println("Code: " + exam1.code);
         System.out.println("Title: " + exam1.title);
-        System.out.println("Category ID: " + exam1.categoryQuestion.id);
+        System.out.println("Category ID: " + exam1.category.id);
         System.out.println("Duration: " + exam1.duration);
-        System.out.println("Creator ID: " + exam1.account.id);
+        System.out.println("Creator ID: " + exam1.creator.id);
         System.out.println("Create Date: " + exam1.createDate);
 
         // Table ExamQuestion

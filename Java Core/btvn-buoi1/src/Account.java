@@ -3,7 +3,7 @@ import java.time.LocalDate;
 public class Account {
     int id;
     String email;
-    String userName;
+    String username;
     String fullName;
     Department department;
     Position position;
