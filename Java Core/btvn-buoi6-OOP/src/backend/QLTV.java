@@ -32,12 +32,83 @@ public class QLTV implements IQLTV {
     @Override
     public void themTaiLieu() {
         System.out.println("==== THÊM TÀI LIỆU MỚI ====");
+        // Nhập dữ liệu chung
+        System.out.print("Nhập mã tài liệu: ");
+        String maTaiLieu = sc.nextLine();
+        System.out.print("Nhập tên nhà xuất bản: ");
+        String tenNhaXuatBan = sc.nextLine();
+        System.out.print("Nhập số bản phát hành: ");
+        int soBanPhatHanh = sc.nextInt();
+        sc.nextLine();
+
+        // Chọn loại tài liệu
+        System.out.print("Nhập loại tài liệu: 1. Sách   2. Tạp chí   3. Báo");
+        String loaiTaiLieu = sc.nextLine();
+        TaiLieu taiLieu;
+        switch (loaiTaiLieu) {
+            // 1. SÁCH
+            case "1":
+                System.out.println("==== NHẬP THÔNG TIN SÁCH ====");
+                System.out.print("Nhập tên tác giả: ");
+                String tenTacGia = sc.nextLine();
+                System.out.print("Nhập số trang: ");
+                int soTrang = sc.nextInt();
+                sc.nextLine();
+                taiLieu = new Sach(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, tenTacGia, soTrang);
+                break;
+            // 2. TẠP CHÍ
+            case "2":
+                System.out.println("==== NHẬP THÔNG TIN TẠP CHÍ ====");
+                System.out.print("Nhập số phát hành: ");
+                int soPhatHanh = sc.nextInt();
+                System.out.print("Nhập tháng phát hành: ");
+                int thangPhatHanh = sc.nextInt();
+                sc.nextLine();
+                taiLieu = new TapChi(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, soPhatHanh, thangPhatHanh);
+                break;
+            // 3. BÁO
+            case "3":
+                System.out.println("==== NHẬP THÔNG TIN BÁO ====");
+                System.out.print("Nhập ngày phát hành (dd/MM/yyyy): ");
+                String ngayPhatHanh = sc.nextLine();
+                LocalDate localDate = LocalDate.parse(ngayPhatHanh, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                taiLieu = new Bao(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, localDate);
+                break;
+            // Nhập sai loại
+            default:
+                System.out.println("Loại tài liệu không hợp lệ!");
+                return;
+        }
+
+        // Thêm tài liệu vào danh sách
+        taiLieuList.add(taiLieu);
+        System.out.println("Thêm tài liệu thành công!");
     }
 
     // Question 2: Xóa tài liệu theo mã
     @Override
     public void xoaTheoMa() {
         System.out.println("==== XÓA TÀI LIỆU THEO MÃ ====");
+        // Nhập mã tài liệu cần xóa
+        System.out.print("Nhập mã tài liệu cần xóa: ");
+        String maTaiLieu = sc.nextLine();
+
+        // Tìm các tài liệu có mã cần xóa -> cho vào 1 list tạm
+        List<TaiLieu> removes = new ArrayList<>();
+        for (TaiLieu taiLieu : taiLieuList) {
+            if (taiLieu.getMaTaiLieu().equals(maTaiLieu)) {
+                removes.add(taiLieu);
+            }
+        }
+
+        // Nếu không tìm thấy tài liệu
+        if (removes.isEmpty()) {
+            System.out.println("Không tìm thấy tài liệu có mã: " + maTaiLieu);
+        } else {
+            // Xóa các phần tử trong list tạm khỏi taiLieuList
+            taiLieuList.removeAll(removes);
+            System.out.println("Xóa thành công!");
+        }
     }
 
     // Question 3: Hiển thị thông tin toàn bộ tài liệu
