@@ -1,10 +1,8 @@
 package backend;
 
-import entity.Bao;
-import entity.Sach;
-import entity.TaiLieu;
-import entity.TapChi;
+import entity.*;
 
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,13 +17,13 @@ public class QLTV implements IQLTV {
     public QLTV() {
         taiLieuList = new ArrayList<>();
 
-        taiLieuList.add(new Sach("S01", "NXB Kim Dong", 100, "Nguyen Nhat Anh", 250));
-        taiLieuList.add(new Sach("S02", "NXB Tre", 150, "To Hoai", 300));
+        taiLieuList.add(new Sach("S01", "NXB Kim Dong", 100, Loai.SACH, "Nguyen Nhat Anh", 250));
+        taiLieuList.add(new Sach("S02", "NXB Tre", 150, Loai.SACH, "To Hoai", 300));
 
-        taiLieuList.add(new TapChi("TC01", "NXB Thanh Nien", 50, 12, 9));
-        taiLieuList.add(new TapChi("TC02", "NXB Lao Dong", 70, 25, 8));
+        taiLieuList.add(new TapChi("TC01", "NXB Thanh Nien", 50, Loai.TAP_CHI, 12, 9));
+        taiLieuList.add(new TapChi("TC02", "NXB Lao Dong", 70, Loai.TAP_CHI, 25, 8));
 
-        taiLieuList.add(new Bao("B01", "NXB Ha Noi", 200, LocalDate.of(2026, 9, 27)));
+        taiLieuList.add(new Bao("B01", "NXB Ha Noi", 200, Loai.BAO, LocalDate.of(2026, 9, 27)));
     }
 
     // Question 1: Thêm tài liệu mới
@@ -54,7 +52,7 @@ public class QLTV implements IQLTV {
                 System.out.print("Nhập số trang: ");
                 int soTrang = sc.nextInt();
                 sc.nextLine();
-                taiLieu = new Sach(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, tenTacGia, soTrang);
+                taiLieu = new Sach(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, Loai.SACH, tenTacGia, soTrang);
                 break;
             // 2. TẠP CHÍ
             case "2":
@@ -64,7 +62,7 @@ public class QLTV implements IQLTV {
                 System.out.print("Nhập tháng phát hành: ");
                 int thangPhatHanh = sc.nextInt();
                 sc.nextLine();
-                taiLieu = new TapChi(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, soPhatHanh, thangPhatHanh);
+                taiLieu = new TapChi(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, Loai.TAP_CHI, soPhatHanh, thangPhatHanh);
                 break;
             // 3. BÁO
             case "3":
@@ -72,7 +70,7 @@ public class QLTV implements IQLTV {
                 System.out.print("Nhập ngày phát hành (dd/MM/yyyy): ");
                 String ngayPhatHanh = sc.nextLine();
                 LocalDate localDate = LocalDate.parse(ngayPhatHanh, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-                taiLieu = new Bao(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, localDate);
+                taiLieu = new Bao(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, Loai.BAO, localDate);
                 break;
             // Nhập sai loại
             default:
@@ -114,6 +112,105 @@ public class QLTV implements IQLTV {
     // Question 3: Hiển thị thông tin toàn bộ tài liệu
     @Override
     public void hienThiDanhSach() {
+        List <TaiLieu> taiLieus = new ArrayList<>();
+        try {
+            // B1: Lấy dữ liệu từ Database
+            String url = "jdbc:mysql://localhost:3306/qltv";
+            String username = "root";
+            String password = "root";
+
+            // B2: Tạo kết nối đến Database
+            Connection connection = DriverManager.getConnection(url, username, password);
+
+            // B3: Tạo câu SQL
+            String sql = "SELECT * FROM tai_lieu";
+
+            Statement statement = connection.createStatement();
+
+            // B4: Thực hiện câu query
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            // B5: Đọc dữ liệu từ ResultSet
+            while (resultSet.next()) {
+                String maTaiLieu = resultSet.getString("ma_tai_lieu");
+                String tenNhaXuatBan = resultSet.getString("ten_nha_xuat_ban");
+                int soBanPhatHanh = resultSet.getInt("so_ban_phat_hanh");
+                String loaiString = resultSet.getString("loai");
+                Loai loai = Loai.valueOf(loaiString);
+
+                // B6: Chuyển dữ liệu từ Database thành object tương ứng
+
+                if (loai == Loai.SACH) {
+                    String tenTacGia =
+                            resultSet.getString("ten_tac_gia");
+
+                    int soTrang =
+                            resultSet.getInt("so_trang");
+
+                    Sach sach =
+                            new Sach(
+                                    maTaiLieu,
+                                    tenNhaXuatBan,
+                                    soBanPhatHanh,
+                                    Loai.SACH,
+                                    tenTacGia,
+                                    soTrang
+                            );
+
+                    taiLieus.add(sach);
+
+
+                } else if (loai == Loai.TAP_CHI) {
+
+                    int soPhatHanh =
+                            resultSet.getInt("so_phat_hanh");
+
+                    int thangPhatHanh =
+                            resultSet.getInt("thang_phat_hanh");
+
+                    TapChi tapChi =
+                            new TapChi(
+                                    maTaiLieu,
+                                    tenNhaXuatBan,
+                                    soBanPhatHanh,
+                                    Loai.TAP_CHI,
+                                    soPhatHanh,
+                                    thangPhatHanh
+                            );
+
+                    taiLieus.add(tapChi);
+
+
+                } else if (loai == Loai.BAO) {
+
+                    java.sql.Date sqlDate =
+                            resultSet.getDate("ngay_phat_hanh");
+
+                    LocalDate ngayPhatHanh =
+                            sqlDate.toLocalDate();
+
+                    Bao bao =
+                            new Bao(
+                                    maTaiLieu,
+                                    tenNhaXuatBan,
+                                    soBanPhatHanh,
+                                    Loai.BAO,
+                                    ngayPhatHanh
+                            );
+
+                    taiLieus.add(bao);
+                }
+            }
+
+            // B7: Đóng kết nối
+            resultSet.close();
+            statement.close();
+            connection.close();
+
+        } catch (SQLException e) {
+
+        }
+
         System.out.println("==== HIỂN THỊ TOÀN BỘ TÀI LIỆU ====");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -244,5 +341,260 @@ public class QLTV implements IQLTV {
         if (!found) {
             System.out.println("Không tìm thấy tài liệu thuộc loại này.");
         }
+    }
+
+    // Question 4: Tìm kiếm gần đúng mã tài liệu
+    @Override
+    public void timKiemGanDungMa() {
+        System.out.println("==== TÌM KIẾM GẦN ĐÚNG MÃ TÀI LIỆU ====");
+        System.out.print("Nhập mã tài liệu cần tìm: ");
+        String maTaiLieu = sc.nextLine();
+
+        // List lưu kết quả tìm kiếm
+        List<TaiLieu> taiLieus = new ArrayList<>();
+
+        try {
+
+            // B1: Lấy dữ liệu từ Database
+            String url = "jdbc:mysql://localhost:3306/qltv";
+            String username = "root";
+            String password = "root";
+
+            // B2: Tạo kết nối đến Database
+            Connection connection =
+                    DriverManager.getConnection(
+                            url,
+                            username,
+                            password
+                    );
+
+            // B3: Tạo câu SQL
+            // Tìm gần đúng mã tài liệu
+            String sql =
+                    "SELECT * FROM tai_lieu WHERE ma_tai_lieu LIKE ?";
+
+            // B4: Tạo PreparedStatement
+            PreparedStatement statement =
+                    connection.prepareStatement(sql);
+
+            // Truyền giá trị cần tìm vào dấu ?
+            statement.setString(
+                    1,
+                    "%" + maTaiLieu + "%"
+            );
+
+            // B5: Thực hiện câu query
+            ResultSet resultSet =
+                    statement.executeQuery();
+
+            // B6: Đọc dữ liệu từ ResultSet
+            while (resultSet.next()) {
+
+                // -------------------------
+                // Lấy thông tin chung
+                // -------------------------
+
+                String ma =
+                        resultSet.getString("ma_tai_lieu");
+
+                String tenNhaXuatBan =
+                        resultSet.getString("ten_nha_xuat_ban");
+
+                int soBanPhatHanh =
+                        resultSet.getInt("so_ban_phat_hanh");
+
+                String loai =
+                        resultSet.getString("loai");
+
+
+                // -------------------------
+                // Nếu là Sách
+                // -------------------------
+
+                if (loai.equals("SACH")) {
+
+                    String tacGia =
+                            resultSet.getString("ten_tac_gia");
+
+                    int soTrang =
+                            resultSet.getInt("so_trang");
+
+                    Sach sach =
+                            new Sach(
+                                    ma,
+                                    tenNhaXuatBan,
+                                    soBanPhatHanh,
+
+                                    tacGia,
+                                    soTrang
+                            );
+
+                    taiLieus.add(sach);
+                }
+
+
+                // -------------------------
+                // Nếu là Tạp chí
+                // -------------------------
+
+                else if (loai.equals("TAP_CHI")) {
+
+                    int soPhatHanh =
+                            resultSet.getInt("so_phat_hanh");
+
+                    int thangPhatHanh =
+                            resultSet.getInt("thang_phat_hanh");
+
+                    TapChi tapChi =
+                            new TapChi(
+                                    ma,
+                                    tenNhaXuatBan,
+                                    soBanPhatHanh,
+                                    soPhatHanh,
+                                    thangPhatHanh
+                            );
+
+                    taiLieus.add(tapChi);
+                }
+
+
+                // -------------------------
+                // Nếu là Báo
+                // -------------------------
+
+                else if (loai.equals("BAO")) {
+
+                    java.sql.Date sqlDate =
+                            resultSet.getDate(
+                                    "ngay_phat_hanh"
+                            );
+
+                    LocalDate ngayPhatHanh =
+                            sqlDate.toLocalDate();
+
+                    Bao bao =
+                            new Bao(
+                                    ma,
+                                    tenNhaXuatBan,
+                                    soBanPhatHanh,
+                                    ngayPhatHanh
+                            );
+
+                    taiLieus.add(bao);
+                }
+            }
+
+            // B7: Đóng kết nối
+            resultSet.close();
+            statement.close();
+            connection.close();
+
+        } catch (SQLException e) {
+
+            throw new RuntimeException(e);
+        }
+
+
+        // ==================================================
+        // Hiển thị kết quả
+        // ==================================================
+
+        if (taiLieus.isEmpty()) {
+
+            System.out.println(
+                    "Không tìm thấy tài liệu phù hợp."
+            );
+
+            return;
+        }
+
+
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+
+        System.out.println(
+                "+--------+--------------------+------------+------------+--------------------------------+"
+        );
+
+        System.out.printf(
+                "|%8s|%20s|%12s|%12s|%32s|\n",
+                "Mã TL",
+                "Nhà xuất bản",
+                "Số bản PH",
+                "Loại",
+                "Thông tin thêm"
+        );
+
+        System.out.println(
+                "+--------+--------------------+------------+------------+--------------------------------+"
+        );
+
+
+        for (TaiLieu taiLieu : taiLieus) {
+
+            String loai = "";
+            String thongTinThem = "";
+
+
+            // Sách
+            if (taiLieu instanceof Sach) {
+
+                Sach sach = (Sach) taiLieu;
+
+                loai = "Sách";
+
+                thongTinThem =
+                        "TG: "
+                                + sach.getTacGia()
+                                + ", "
+                                + sach.getSoTrang()
+                                + " trang";
+            }
+
+
+            // Tạp chí
+            else if (taiLieu instanceof TapChi) {
+
+                TapChi tapChi = (TapChi) taiLieu;
+
+                loai = "Tạp chí";
+
+                thongTinThem =
+                        "Số PH: "
+                                + tapChi.getSoPhatHanh()
+                                + ", tháng: "
+                                + tapChi.getThangPhatHanh();
+            }
+
+
+            // Báo
+            else if (taiLieu instanceof Bao) {
+
+                Bao bao = (Bao) taiLieu;
+
+                loai = "Báo";
+
+                thongTinThem =
+                        "Ngày PH: "
+                                + bao.getNgayPhatHanh()
+                                .format(formatter);
+            }
+
+
+            System.out.printf(
+                    "|%8s|%20s|%12d|%12s|%32s|\n",
+                    taiLieu.getMaTaiLieu(),
+                    taiLieu.getTenNhaXuatBan(),
+                    taiLieu.getSoBanPhatHanh(),
+                    loai,
+                    thongTinThem
+            );
+        }
+
+
+        System.out.println(
+                "+--------+--------------------+------------+------------+--------------------------------+"
+        );
     }
 }

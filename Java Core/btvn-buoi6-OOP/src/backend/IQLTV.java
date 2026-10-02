@@ -5,4 +5,5 @@ public interface IQLTV {
     void xoaTheoMa();
     void hienThiDanhSach();
     void timKiemTheoLoai();
+    void timKiemGanDungMa();
 }

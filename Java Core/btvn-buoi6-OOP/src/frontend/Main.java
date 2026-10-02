@@ -24,7 +24,8 @@ public class Main {
             System.out.println("2. Xóa tài liệu theo mã.");
             System.out.println("3. Hiển thị toàn bộ tài liệu.");
             System.out.println("4. Tìm kiếm tài liệu theo loại.");
-            System.out.println("5. Thoát khỏi chương trình.");
+            System.out.println("5. Tìm kiếm tài liệu gần đúng theo mã.");
+            System.out.println("6. Thoát khỏi chương trình.");
 
             String choice = sc.nextLine();
 
@@ -46,6 +47,10 @@ public class Main {
                     break;
 
                 case "5":
+                    iqltv.timKiemGanDungMa();
+                    break;
+
+                case "6":
                     System.out.println("Thoát.");
                     System.exit(0);
 

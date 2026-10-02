@@ -4,8 +4,8 @@ public class Sach extends TaiLieu {
     private String tacGia;
     private int soTrang;
 
-    public Sach(String maTaiLieu, String tenNhaXuatBan, int soBanPhatHanh, String tacGia, int soTrang) {
-        super(maTaiLieu, tenNhaXuatBan, soBanPhatHanh);
+    public Sach(String maTaiLieu, String tenNhaXuatBan, int soBanPhatHanh, Loai loai, String tacGia, int soTrang) {
+        super(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, loai);
         this.tacGia = tacGia;
         this.soTrang = soTrang;
     }

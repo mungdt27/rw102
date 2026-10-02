@@ -4,15 +4,17 @@ public class TaiLieu {
     private String maTaiLieu;
     private String tenNhaXuatBan;
     private int soBanPhatHanh;
+    private Loai loai;
 
     // Constructor
     public TaiLieu() {
     }
 
-    public TaiLieu(String maTaiLieu, String tenNhaXuatBan, int soBanPhatHanh) {
+    public TaiLieu(String maTaiLieu, String tenNhaXuatBan, int soBanPhatHanh, Loai loai) {
         this.maTaiLieu = maTaiLieu;
         this.tenNhaXuatBan = tenNhaXuatBan;
         this.soBanPhatHanh = soBanPhatHanh;
+        this.loai = loai;
     }
 
     // Getters and Setters
@@ -38,5 +40,13 @@ public class TaiLieu {
 
     public void setSoBanPhatHanh(int soBanPhatHanh) {
         this.soBanPhatHanh = soBanPhatHanh;
+    }
+
+    public Loai getLoai() {
+        return loai;
+    }
+
+    public void setLoai(Loai loai){
+        this.loai = loai;
     }
 }
