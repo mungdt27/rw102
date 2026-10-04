@@ -3,43 +3,31 @@ package backend;
 import entity.Account;
 import entity.Department;
 import entity.Position;
+import utils.JDBCUtils;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import java.time.LocalDate;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class QuanLy implements IQuanLy {
-    private List<Account> accountList;
-    private List<Department> departmentList;
-
+public class QLAccount implements IQLAccount {
     private Scanner sc = new Scanner(System.in);
-
-    public QuanLy() {
-        accountList = new ArrayList<>();
-        departmentList = new ArrayList<>();
-    }
 
     // Question 1: Hiển thị toàn bộ account
     @Override
-    public void hienThiToanBoAccount() {
+    public void hienThiAccount() {
         System.out.println("==== HIỂN THỊ TOÀN BỘ ACCOUNT ====");
+
         List<Account> accounts = new ArrayList<>();
+
         try {
-            // B1: Lấy dữ liệu từ DB
-            String url = "jdbc:mysql://localhost:3306/btvn_buoi8";
-            String username = "root";
-            String password = "";
-            // B2: Tạo kết nối đến Database
-            Connection connection = DriverManager.getConnection(url, username, password);
-            // B3: Tạo SQL
+            // B1: Lấy kết nối
+            Connection connection = JDBCUtils.getConnection();
+
+            // B2: Tạo SQL
             String sql = "SELECT " +
                             "a.id, " +
                             "a.email, " +
@@ -50,197 +38,68 @@ public class QuanLy implements IQuanLy {
                             "d.name AS department_name, " +
                             "p.id AS position_id, " +
                             "p.name AS position_name " +
+
                             "FROM account a " +
+
                             "LEFT JOIN department d " +
                             "ON a.department_id = d.id " +
-                            "LEFT JOIN position p " +
+
+                            "LEFT JOIN `position` p " +
                             "ON a.position_id = p.id";
 
-            // B4: Tạo PreparedStatement
+            // B3: PreparedStatement
             PreparedStatement statement = connection.prepareStatement(sql);
 
-            // B5: Thực hiện query
+            // B4: Execute query
             ResultSet resultSet = statement.executeQuery();
 
-            // B6: Chuyển dữ liệu từ DB thành object
+            // B5: Đọc dữ liệu
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
                 String email = resultSet.getString("email");
-                String usernameAccount = resultSet.getString("username");
+                String username = resultSet.getString("username");
                 String fullName = resultSet.getString("full_name");
+
+                // Create date
                 java.sql.Date sqlDate = resultSet.getDate("create_date");
-                LocalDate createDate = sqlDate != null ? sqlDate.toLocalDate() : null;
+                LocalDate createDate = null;
+
+                if (sqlDate != null) {
+                    createDate = sqlDate.toLocalDate();
+                }
 
                 // Department
                 Department department = null;
-                int departmentId = resultSet.getInt("department_id");
                 String departmentName = resultSet.getString("department_name");
-                if (!resultSet.wasNull()) {
+
+                if (departmentName != null) {
+                    int departmentId = resultSet.getInt("department_id");
                     department = new Department(departmentId, departmentName);
                 }
 
                 // Position
                 Position position = null;
-                int positionId = resultSet.getInt("position_id");
                 String positionName = resultSet.getString("position_name");
-                if (!resultSet.wasNull()) {
-                    Position.PositionName positionEnum = Position.PositionName.valueOf(positionName);
-                    position = new Position(positionId, positionEnum);
-                }
-                Account account = new Account(id, email, usernameAccount, fullName, department, position, createDate);
-                accounts.add(account);
-            }
 
-            resultSet.close();
-            statement.close();
-            connection.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        // Lưu list lấy từ DB
-        accountList = accounts;
-
-        // Hiển thị dạng bảng
-        System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
-        System.out.printf(
-                "|%4s|%22s|%12s|%22s|%20s|%16s|%12s|\n",
-                "ID",
-                "Email",
-                "Username",
-                "Full Name",
-                "Department",
-                "Position",
-                "Create Date"
-        );
-        System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
-
-        for (Account account : accountList) {
-            String departmentName = "";
-            if (account.getDepartment() != null) {
-                departmentName = account.getDepartment().getName();
-            }
-            String positionName = "";
-            if (account.getPosition() != null) {
-                positionName = account.getPosition().getName().toString();
-            }
-            String createDate = "";
-            if (account.getCreateDate() != null) {
-                createDate = account.getCreateDate().toString();
-            }
-            System.out.printf(
-                    "|%4d|%22s|%12s|%22s|%20s|%16s|%12s|\n",
-                    account.getId(),
-                    account.getEmail(),
-                    account.getUsername(),
-                    account.getFullName(),
-                    departmentName,
-                    positionName,
-                    createDate
-            );
-        }
-
-        System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
-    }
-
-    // Question 2: Tìm kiếm account theo username
-    @Override
-    public void timKiemAccountTheoUsername() {
-        System.out.println("==== TÌM KIẾM ACCOUNT THEO USERNAME ====");
-        System.out.print("Nhập username cần tìm: ");
-        String usernameAccount = sc.nextLine();
-        List<Account> accounts = new ArrayList<>();
-
-        try {
-            // B1: Kết nối DB
-            String url = "jdbc:mysql://localhost:3306/btvn_buoi8";
-            String username = "root";
-            String password = "";
-            Connection connection = DriverManager.getConnection(url, username, password);
-
-            // B2: SQL tìm kiếm gần đúng
-            String sql = "SELECT " +
-                            "a.id, " +
-                            "a.email, " +
-                            "a.username, " +
-                            "a.full_name, " +
-                            "a.create_date, " +
-                            "d.id AS department_id, " +
-                            "d.name AS department_name, " +
-                            "p.id AS position_id, " +
-                            "p.name AS position_name " +
-                            "FROM account a " +
-                            "LEFT JOIN department d " +
-                            "ON a.department_id = d.id " +
-                            "LEFT JOIN position p " +
-                            "ON a.position_id = p.id " +
-                            "WHERE a.username LIKE ?";
-
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, "%" + usernameAccount + "%");
-            ResultSet resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String email = resultSet.getString("email");
-                String usernameResult = resultSet.getString("username");
-                String fullName = resultSet.getString("full_name");
-                java.sql.Date sqlDate = resultSet.getDate("create_date");
-                LocalDate createDate = sqlDate != null ? sqlDate.toLocalDate() : null;
-
-                Department department = null;
-                int departmentId = resultSet.getInt("department_id");
-
-                String departmentName = resultSet.getString("department_name");
-
-                if (!resultSet.wasNull()) {
-                    department = new Department(departmentId, departmentName);
-                }
-
-                Position position = null;
-                int positionId = resultSet.getInt("position_id");
-                String positionName = resultSet.getString("position_name");
-                if (!resultSet.wasNull()) {
+                if (positionName != null) {
+                    int positionId = resultSet.getInt("position_id");
                     Position.PositionName positionEnum = Position.PositionName.valueOf(positionName);
                     position = new Position(positionId, positionEnum);
                 }
 
-                Account account =
-                        new Account(
-                                id,
-                                email,
-                                usernameResult,
-                                fullName,
-                                department,
-                                position,
-                                createDate
-                        );
-
+                // Tạo Account
+                Account account = new Account(id, email, username, fullName, department, position, createDate);
                 accounts.add(account);
             }
 
-
+            // B6: Đóng
             resultSet.close();
             statement.close();
-            connection.close();
-
-        } catch (SQLException e) {
-
-            throw new RuntimeException(e);
+            JDBCUtils.closeConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-
-        if (accounts.isEmpty()) {
-
-            System.out.println(
-                    "Không tìm thấy account."
-            );
-
-            return;
-        }
-
-        // Hiển thị kết quả
         System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
         System.out.printf(
                 "|%4s|%22s|%12s|%22s|%20s|%16s|%12s|\n",
@@ -284,173 +143,237 @@ public class QuanLy implements IQuanLy {
         System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
     }
 
-    // Question 3: Hiển thị department
-
+    // Question 2: Tìm kiếm account theo username
     @Override
-    public void hienThiDepartment() {
-        System.out.println("==== HIỂN THỊ DEPARTMENT ====");
-        List<Department> departments = new ArrayList<>();
+    public void timKiemAccount() {
+        System.out.println("==== TÌM KIẾM ACCOUNT THEO USERNAME ====");
+        System.out.print("Nhập username cần tìm: ");
+        String username = sc.nextLine();
+
+        List<Account> accounts = new ArrayList<>();
 
         try {
-            String url = "jdbc:mysql://localhost:3306/btvn_buoi8";
-            String username = "root";
-            String password = "";
-
-            Connection connection = DriverManager.getConnection(url, username, password);
-
-            String sql = "SELECT * FROM department";
+            Connection connection = JDBCUtils.getConnection();
+            String sql = "SELECT " +
+                            "a.id, " +
+                            "a.email, " +
+                            "a.username, " +
+                            "a.full_name, " +
+                            "a.create_date, " +
+                            "d.id AS department_id, " +
+                            "d.name AS department_name, " +
+                            "p.id AS position_id, " +
+                            "p.name AS position_name " +
+                            "FROM account a " +
+                            "LEFT JOIN department d " +
+                            "ON a.department_id = d.id " +
+                            "LEFT JOIN `position` p " +
+                            "ON a.position_id = p.id " +
+                            "WHERE a.username LIKE ?";
 
             PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, "%" + username + "%");
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
-                String name = resultSet.getString("name");
-                Department department = new Department(id, name);
-                departments.add(department);
-            }
+                String email = resultSet.getString("email");
+                String usernameResult = resultSet.getString("username");
+                String fullName = resultSet.getString("full_name");
+                java.sql.Date sqlDate = resultSet.getDate("create_date");
+                LocalDate createDate = null;
+                if (sqlDate != null) {
+                    createDate = sqlDate.toLocalDate();
+                }
 
-            resultSet.close();
-            statement.close();
-            connection.close();
+                Department department = null;
+                String departmentName = resultSet.getString("department_name");
+                if (departmentName != null) {
+                    department = new Department(resultSet.getInt("department_id"), departmentName);
+                }
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+                Position position = null;
+                String positionName = resultSet.getString("position_name");
+                if (positionName != null) {
+                    Position.PositionName positionEnum = Position.PositionName.valueOf(positionName);
+                    position = new Position(resultSet.getInt("position_id"), positionEnum);
+                }
 
-        departmentList = departments;
-        System.out.println("+-----+--------------------+");
-
-        System.out.printf(
-                "|%5s|%20s|\n",
-                "ID",
-                "Department Name"
-        );
-
-        System.out.println("+-----+--------------------+");
-
-        for (Department department : departmentList) {
-            System.out.printf(
-                    "|%5d|%20s|\n",
-                    department.getId(),
-                    department.getName()
-            );
-        }
-
-
-        System.out.println("+-----+--------------------+");
-    }
-
-    // Question 4: Tìm kiếm department theo tên
-
-    @Override
-    public void timKiemDepartmentTheoTen() {
-
-        System.out.println(
-                "==== TÌM KIẾM DEPARTMENT THEO TÊN ===="
-        );
-
-        System.out.print(
-                "Nhập tên department cần tìm: "
-        );
-
-        String name =
-                sc.nextLine();
-
-
-        List<Department> departments =
-                new ArrayList<>();
-
-        try {
-
-            String url =
-                    "jdbc:mysql://localhost:3306/btvn_buoi8";
-            String username = "root";
-            String password = "";
-
-
-            Connection connection =
-                    DriverManager.getConnection(
-                            url,
-                            username,
-                            password
-                    );
-
-
-            String sql =
-                    "SELECT * " +
-                            "FROM department " +
-                            "WHERE name LIKE ?";
-
-
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
-
-
-            statement.setString(
-                    1,
-                    "%" + name + "%"
-            );
-
-
-            ResultSet resultSet =
-                    statement.executeQuery();
-
-
-            while (resultSet.next()) {
-
-                int id =
-                        resultSet.getInt("id");
-
-                String departmentName =
-                        resultSet.getString("name");
-
-
-                Department department =
-                        new Department(
+                Account account = new Account(
                                 id,
-                                departmentName
+                                email,
+                                usernameResult,
+                                fullName,
+                                department,
+                                position,
+                                createDate
                         );
-
-
-                departments.add(department);
+                accounts.add(account);
             }
 
 
             resultSet.close();
             statement.close();
-            connection.close();
-
-        } catch (SQLException e) {
-
-            throw new RuntimeException(e);
+            JDBCUtils.closeConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-
-        if (departments.isEmpty()) {
-
-            System.out.println("Không tìm thấy department.");
-
+        if (accounts.isEmpty()) {
+            System.out.println("Không tìm thấy account.");
             return;
         }
 
-        System.out.println("+-----+--------------------+");
-
+        System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
         System.out.printf(
-                "|%5s|%20s|\n",
+                "|%4s|%22s|%12s|%22s|%20s|%16s|%12s|\n",
                 "ID",
-                "Department Name"
+                "Email",
+                "Username",
+                "Full Name",
+                "Department",
+                "Position",
+                "Create Date"
         );
-        System.out.println("+-----+--------------------+");
+        System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
 
-        for (Department department : departments) {
+        for (Account account : accounts) {
+            String departmentName = "";
+            if (account.getDepartment() != null) {
+                departmentName = account.getDepartment().getName();
+            }
+
+            String positionName = "";
+            if (account.getPosition() != null) {
+                positionName = account.getPosition().getName().toString();
+            }
+
+            String createDate = "";
+            if (account.getCreateDate() != null) {
+                createDate = account.getCreateDate().toString();
+            }
+
             System.out.printf(
-                    "|%5d|%20s|\n",
-                    department.getId(),
-                    department.getName()
+                    "|%4d|%22s|%12s|%22s|%20s|%16s|%12s|\n",
+                    account.getId(),
+                    account.getEmail(),
+                    account.getUsername(),
+                    account.getFullName(),
+                    departmentName,
+                    positionName,
+                    createDate
             );
         }
+        System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
+    }
 
-        System.out.println("+-----+--------------------+");
+    // Question 3: Thêm mới account
+    @Override
+    public void themAccount() {
+        System.out.println("==== THÊM MỚI ACCOUNT ====");
+        System.out.print("Nhập id: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+        System.out.print("Nhập email: ");
+        String email = sc.nextLine();
+        System.out.print("Nhập username: ");
+        String username = sc.nextLine();
+        System.out.print("Nhập fullname: ");
+        String fullName = sc.nextLine();
+        System.out.print("Nhập department id: ");
+        int departmentId = sc.nextInt();
+        System.out.print("Nhập position id: ");
+        int positionId = sc.nextInt();
+        sc.nextLine();
+
+        String sql = "INSERT INTO account " +
+                        "(id, email, username, full_name, " +
+                        "department_id, position_id, create_date) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            Connection connection = JDBCUtils.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+            statement.setString(2, email);
+            statement.setString(3, username);
+            statement.setString(4, fullName);
+            statement.setInt(5, departmentId);
+            statement.setInt(6, positionId);
+            statement.setDate(7, java.sql.Date.valueOf(LocalDate.now()));
+
+            int c = statement.executeUpdate();
+
+            if (c > 0) {
+                System.out.println("Thêm account thành công!");
+            } else {
+                System.out.println("Thêm account thất bại!");
+            }
+
+            statement.close();
+            JDBCUtils.closeConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Question 4: Xóa account theo username
+    @Override
+    public void xoaAccount() {
+        System.out.println("==== XÓA ACCOUNT THEO USERNAME ====");
+        System.out.print("Nhập username cần xóa: ");
+        String username = sc.nextLine();
+        String sql = "DELETE FROM account " + "WHERE username = ?";
+
+        try {
+            Connection connection = JDBCUtils.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, username);
+
+            int c = statement.executeUpdate();
+
+            if (c > 0) {
+                System.out.println("Xóa thành công!");
+            } else {
+                System.out.println("Xóa không thành công!");
+            }
+
+            statement.close();
+            JDBCUtils.closeConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Question 5: Update fullname theo username
+    @Override
+    public void updateFullName() {
+        System.out.println("==== UPDATE FULLNAME THEO USERNAME ====");
+        System.out.print("Nhập username cần update: ");
+        String username = sc.nextLine();
+        System.out.print("Nhập fullname mới: ");
+        String fullName = sc.nextLine();
+
+        String sql = "UPDATE account " + "SET full_name = ? " + "WHERE username = ?";
+
+        try {
+            Connection connection = JDBCUtils.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, fullName);
+            statement.setString(2, username);
+
+            int c = statement.executeUpdate();
+
+            if (c > 0) {
+                System.out.println("Update thành công!");
+            } else {
+                System.out.println("Update không thành công!");
+            }
+
+            statement.close();
+            JDBCUtils.closeConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

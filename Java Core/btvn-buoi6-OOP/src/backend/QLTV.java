@@ -27,85 +27,261 @@ public class QLTV implements IQLTV {
     }
 
     // Question 1: Thêm tài liệu mới
+//    @Override
+//    public void themTaiLieu() {
+//        System.out.println("==== THÊM TÀI LIỆU MỚI ====");
+//        // Nhập dữ liệu chung
+//        System.out.print("Nhập mã tài liệu: ");
+//        String maTaiLieu = sc.nextLine();
+//        System.out.print("Nhập tên nhà xuất bản: ");
+//        String tenNhaXuatBan = sc.nextLine();
+//        System.out.print("Nhập số bản phát hành: ");
+//        int soBanPhatHanh = sc.nextInt();
+//        sc.nextLine();
+//
+//        // Chọn loại tài liệu
+//        System.out.print("Nhập loại tài liệu: 1. Sách   2. Tạp chí   3. Báo");
+//        String loaiTaiLieu = sc.nextLine();
+//        TaiLieu taiLieu;
+//        switch (loaiTaiLieu) {
+//            // 1. SÁCH
+//            case "1":
+//                System.out.println("==== NHẬP THÔNG TIN SÁCH ====");
+//                System.out.print("Nhập tên tác giả: ");
+//                String tenTacGia = sc.nextLine();
+//                System.out.print("Nhập số trang: ");
+//                int soTrang = sc.nextInt();
+//                sc.nextLine();
+//                taiLieu = new Sach(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, Loai.SACH, tenTacGia, soTrang);
+//                break;
+//            // 2. TẠP CHÍ
+//            case "2":
+//                System.out.println("==== NHẬP THÔNG TIN TẠP CHÍ ====");
+//                System.out.print("Nhập số phát hành: ");
+//                int soPhatHanh = sc.nextInt();
+//                System.out.print("Nhập tháng phát hành: ");
+//                int thangPhatHanh = sc.nextInt();
+//                sc.nextLine();
+//                taiLieu = new TapChi(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, Loai.TAP_CHI, soPhatHanh, thangPhatHanh);
+//                break;
+//            // 3. BÁO
+//            case "3":
+//                System.out.println("==== NHẬP THÔNG TIN BÁO ====");
+//                System.out.print("Nhập ngày phát hành (dd/MM/yyyy): ");
+//                String ngayPhatHanh = sc.nextLine();
+//                LocalDate localDate = LocalDate.parse(ngayPhatHanh, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+//                taiLieu = new Bao(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, Loai.BAO, localDate);
+//                break;
+//            // Nhập sai loại
+//            default:
+//                System.out.println("Loại tài liệu không hợp lệ!");
+//                return;
+//        }
+//
+//        // Thêm tài liệu vào danh sách
+//        taiLieuList.add(taiLieu);
+//        System.out.println("Thêm tài liệu thành công!");
+//    }
+
+    // Question 1: Thêm tài liệu mới
     @Override
     public void themTaiLieu() {
+
         System.out.println("==== THÊM TÀI LIỆU MỚI ====");
+
         // Nhập dữ liệu chung
         System.out.print("Nhập mã tài liệu: ");
         String maTaiLieu = sc.nextLine();
+
         System.out.print("Nhập tên nhà xuất bản: ");
         String tenNhaXuatBan = sc.nextLine();
+
         System.out.print("Nhập số bản phát hành: ");
         int soBanPhatHanh = sc.nextInt();
         sc.nextLine();
 
         // Chọn loại tài liệu
-        System.out.print("Nhập loại tài liệu: 1. Sách   2. Tạp chí   3. Báo");
+        System.out.print(
+                "Nhập loại tài liệu: "
+                        + "1. Sách "
+                        + "2. Báo "
+                        + "3. Tạp chí: "
+        );
+
         String loaiTaiLieu = sc.nextLine();
-        TaiLieu taiLieu;
+
+        String column;
+        String value;
+
         switch (loaiTaiLieu) {
-            // 1. SÁCH
+
+            // Sách
             case "1":
-                System.out.println("==== NHẬP THÔNG TIN SÁCH ====");
+
                 System.out.print("Nhập tên tác giả: ");
-                String tenTacGia = sc.nextLine();
+                String tacGia = sc.nextLine();
+
                 System.out.print("Nhập số trang: ");
                 int soTrang = sc.nextInt();
                 sc.nextLine();
-                taiLieu = new Sach(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, Loai.SACH, tenTacGia, soTrang);
+
+                column = "ten_tac_gia, so_trang";
+                value = "'" + tacGia + "', " + soTrang;
+
                 break;
-            // 2. TẠP CHÍ
+
+
+            // Báo
             case "2":
-                System.out.println("==== NHẬP THÔNG TIN TẠP CHÍ ====");
+
+                System.out.print(
+                        "Nhập ngày phát hành (dd/MM/yyyy): "
+                );
+
+                String ngayPhatHanh = sc.nextLine();
+
+                LocalDate localDate =
+                        LocalDate.parse(
+                                ngayPhatHanh,
+                                DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                        );
+
+                column = "ngay_phat_hanh";
+                value = "'" + localDate + "'";
+
+                break;
+
+
+            // Tạp chí
+            default:
+
                 System.out.print("Nhập số phát hành: ");
                 int soPhatHanh = sc.nextInt();
+
                 System.out.print("Nhập tháng phát hành: ");
                 int thangPhatHanh = sc.nextInt();
                 sc.nextLine();
-                taiLieu = new TapChi(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, Loai.TAP_CHI, soPhatHanh, thangPhatHanh);
+
+                column = "so_phat_hanh, thang_phat_hanh";
+                value = soPhatHanh + ", " + thangPhatHanh;
+
                 break;
-            // 3. BÁO
-            case "3":
-                System.out.println("==== NHẬP THÔNG TIN BÁO ====");
-                System.out.print("Nhập ngày phát hành (dd/MM/yyyy): ");
-                String ngayPhatHanh = sc.nextLine();
-                LocalDate localDate = LocalDate.parse(ngayPhatHanh, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-                taiLieu = new Bao(maTaiLieu, tenNhaXuatBan, soBanPhatHanh, Loai.BAO, localDate);
-                break;
-            // Nhập sai loại
-            default:
-                System.out.println("Loại tài liệu không hợp lệ!");
-                return;
         }
 
-        // Thêm tài liệu vào danh sách
-        taiLieuList.add(taiLieu);
-        System.out.println("Thêm tài liệu thành công!");
-    }
+        // Tạo câu SQL
+        String sql = String.format(
+                "INSERT INTO tai_lieu " +
+                        "(ma_tai_lieu, ten_nha_xuat_ban, so_ban_phat_hanh, loai, %s) " +
+                        "VALUES (?, ?, ?, ?, %s)",
+                column,
+                value
+        );
 
+        try {
+
+            // Kết nối database
+            String url = "jdbc:mysql://localhost:3306/qltv";
+            String username = "root";
+            String password = "root";
+
+            Connection conn =
+                    DriverManager.getConnection(
+                            url,
+                            username,
+                            password
+                    );
+
+            PreparedStatement statement =
+                    conn.prepareStatement(sql);
+
+            // Các thuộc tính chung
+            statement.setString(1, maTaiLieu);
+            statement.setString(2, tenNhaXuatBan);
+            statement.setInt(3, soBanPhatHanh);
+
+            // Loại tài liệu
+            String loai;
+
+            if (loaiTaiLieu.equals("1")) {
+                loai = "SACH";
+            } else if (loaiTaiLieu.equals("2")) {
+                loai = "BAO";
+            } else {
+                loai = "TAP_CHI";
+            }
+
+            statement.setString(4, loai);
+
+            // Thực hiện INSERT
+            int c = statement.executeUpdate();
+
+            if (c > 0) {
+                System.out.println("Thêm thành công!");
+            } else {
+                System.out.println("Thêm thất bại!");
+            }
+
+            statement.close();
+            conn.close();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+    }
     // Question 2: Xóa tài liệu theo mã
     @Override
     public void xoaTheoMa() {
+
         System.out.println("==== XÓA TÀI LIỆU THEO MÃ ====");
+
         // Nhập mã tài liệu cần xóa
         System.out.print("Nhập mã tài liệu cần xóa: ");
         String maTaiLieu = sc.nextLine();
 
-        // Tìm các tài liệu có mã cần xóa -> cho vào 1 list tạm
-        List<TaiLieu> removes = new ArrayList<>();
-        for (TaiLieu taiLieu : taiLieuList) {
-            if (taiLieu.getMaTaiLieu().equals(maTaiLieu)) {
-                removes.add(taiLieu);
-            }
-        }
+        // Thông tin kết nối Database
+        String url = "jdbc:mysql://localhost:3306/qltv";
+        String username = "root";
+        String password = "root";
 
-        // Nếu không tìm thấy tài liệu
-        if (removes.isEmpty()) {
-            System.out.println("Không tìm thấy tài liệu có mã: " + maTaiLieu);
-        } else {
-            // Xóa các phần tử trong list tạm khỏi taiLieuList
-            taiLieuList.removeAll(removes);
-            System.out.println("Xóa thành công!");
+        try {
+
+            // Tạo kết nối đến Database
+            Connection connection =
+                    DriverManager.getConnection(
+                            url,
+                            username,
+                            password
+                    );
+
+            // Câu SQL xóa theo mã tài liệu
+            String sql =
+                    "DELETE FROM tai_lieu WHERE ma_tai_lieu = ?";
+
+            // Tạo PreparedStatement
+            PreparedStatement preparedStatement =
+                    connection.prepareStatement(sql);
+
+            // Truyền mã tài liệu vào dấu ?
+            preparedStatement.setString(
+                    1,
+                    maTaiLieu
+            );
+
+            // Thực hiện câu DELETE
+            int c = preparedStatement.executeUpdate();
+
+            // Kiểm tra kết quả
+            if (c > 0) {
+                System.out.println("Xóa thành công!");
+            } else {
+                System.out.println(
+                        "Không tìm thấy tài liệu có mã: "
+                                + maTaiLieu
+                );
+            }
+
+        } catch (Exception e) {
         }
     }
 
@@ -117,7 +293,7 @@ public class QLTV implements IQLTV {
             // B1: Lấy dữ liệu từ Database
             String url = "jdbc:mysql://localhost:3306/qltv";
             String username = "root";
-            String password = "root";
+            String password = "";
 
             // B2: Tạo kết nối đến Database
             Connection connection = DriverManager.getConnection(url, username, password);
@@ -358,7 +534,7 @@ public class QLTV implements IQLTV {
             // B1: Lấy dữ liệu từ Database
             String url = "jdbc:mysql://localhost:3306/qltv";
             String username = "root";
-            String password = "root";
+            String password = "";
 
             // B2: Tạo kết nối đến Database
             Connection connection =
@@ -424,7 +600,7 @@ public class QLTV implements IQLTV {
                                     ma,
                                     tenNhaXuatBan,
                                     soBanPhatHanh,
-
+                                    Loai.SACH,
                                     tacGia,
                                     soTrang
                             );
@@ -450,6 +626,7 @@ public class QLTV implements IQLTV {
                                     ma,
                                     tenNhaXuatBan,
                                     soBanPhatHanh,
+                                    Loai.TAP_CHI,
                                     soPhatHanh,
                                     thangPhatHanh
                             );
@@ -477,6 +654,7 @@ public class QLTV implements IQLTV {
                                     ma,
                                     tenNhaXuatBan,
                                     soBanPhatHanh,
+                                    Loai.BAO,
                                     ngayPhatHanh
                             );
 
@@ -490,7 +668,6 @@ public class QLTV implements IQLTV {
             connection.close();
 
         } catch (SQLException e) {
-
             throw new RuntimeException(e);
         }
 
@@ -596,5 +773,79 @@ public class QLTV implements IQLTV {
         System.out.println(
                 "+--------+--------------------+------------+------------+--------------------------------+"
         );
+    }
+
+    // Question 5: Update tên nhà xuất bản của tài liệu theo mã
+    @Override
+    public void updateTenNhaXuatBan() {
+
+        System.out.println("==== UPDATE TÊN NHÀ XUẤT BẢN ====");
+
+        System.out.print("Nhập mã tài liệu cần update: ");
+        String maTaiLieu = sc.nextLine();
+
+        System.out.print("Nhập tên nhà xuất bản mới: ");
+        String tenNhaXuatBan = sc.nextLine();
+
+        String url = "jdbc:mysql://localhost:3306/qltv";
+        String username = "root";
+        String password = "";
+
+        try {
+
+            // Tạo kết nối đến Database
+            Connection connection =
+                    DriverManager.getConnection(
+                            url,
+                            username,
+                            password
+                    );
+
+            // Tạo câu SQL
+            String sql =
+                    "UPDATE tai_lieu " +
+                            "SET ten_nha_xuat_ban = ? " +
+                            "WHERE ma_tai_lieu = ?";
+
+            // Tạo PreparedStatement
+            PreparedStatement preparedStatement =
+                    connection.prepareStatement(sql);
+
+            // Truyền dữ liệu vào dấu ?
+            preparedStatement.setString(
+                    1,
+                    tenNhaXuatBan
+            );
+
+            preparedStatement.setString(
+                    2,
+                    maTaiLieu
+            );
+
+            // Thực hiện update
+            int c =
+                    preparedStatement.executeUpdate();
+
+            // Kiểm tra kết quả
+            if (c > 0) {
+
+                System.out.println(
+                        "Update thông tin thành công!"
+                );
+
+            } else {
+
+                System.out.println(
+                        "Update thông tin không thành công!"
+                );
+            }
+
+            preparedStatement.close();
+            connection.close();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
     }
 }

@@ -6,4 +6,5 @@ public interface IQLTV {
     void hienThiDanhSach();
     void timKiemTheoLoai();
     void timKiemGanDungMa();
+    void updateTenNhaXuatBan();
 }
