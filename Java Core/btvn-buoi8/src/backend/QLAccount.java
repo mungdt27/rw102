@@ -1,106 +1,42 @@
 package backend;
 
+import backend.controller.AccountController;
 import entity.Account;
 import entity.Department;
 import entity.Position;
-import utils.JDBCUtils;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class QLAccount implements IQLAccount {
-    private Scanner sc = new Scanner(System.in);
 
-    // Question 1: Hiển thị toàn bộ account
+    private Scanner sc =
+            new Scanner(System.in);
+
+    private AccountController controller =
+            new AccountController();
+
+
+    // =========================================
+    // 1. Hiển thị toàn bộ account
+    // =========================================
+
     @Override
     public void hienThiAccount() {
-        System.out.println("==== HIỂN THỊ TOÀN BỘ ACCOUNT ====");
 
-        List<Account> accounts = new ArrayList<>();
+        System.out.println(
+                "==== HIỂN THỊ TOÀN BỘ ACCOUNT ===="
+        );
 
-        try {
-            // B1: Lấy kết nối
-            Connection connection = JDBCUtils.getConnection();
+        List<Account> accounts =
+                controller.findAll();
 
-            // B2: Tạo SQL
-            String sql = "SELECT " +
-                            "a.id, " +
-                            "a.email, " +
-                            "a.username, " +
-                            "a.full_name, " +
-                            "a.create_date, " +
-                            "d.id AS department_id, " +
-                            "d.name AS department_name, " +
-                            "p.id AS position_id, " +
-                            "p.name AS position_name " +
 
-                            "FROM account a " +
+        System.out.println(
+                "+----+----------------------+------------+----------------------+--------------------+----------------+------------+"
+        );
 
-                            "LEFT JOIN department d " +
-                            "ON a.department_id = d.id " +
-
-                            "LEFT JOIN `position` p " +
-                            "ON a.position_id = p.id";
-
-            // B3: PreparedStatement
-            PreparedStatement statement = connection.prepareStatement(sql);
-
-            // B4: Execute query
-            ResultSet resultSet = statement.executeQuery();
-
-            // B5: Đọc dữ liệu
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String email = resultSet.getString("email");
-                String username = resultSet.getString("username");
-                String fullName = resultSet.getString("full_name");
-
-                // Create date
-                java.sql.Date sqlDate = resultSet.getDate("create_date");
-                LocalDate createDate = null;
-
-                if (sqlDate != null) {
-                    createDate = sqlDate.toLocalDate();
-                }
-
-                // Department
-                Department department = null;
-                String departmentName = resultSet.getString("department_name");
-
-                if (departmentName != null) {
-                    int departmentId = resultSet.getInt("department_id");
-                    department = new Department(departmentId, departmentName);
-                }
-
-                // Position
-                Position position = null;
-                String positionName = resultSet.getString("position_name");
-
-                if (positionName != null) {
-                    int positionId = resultSet.getInt("position_id");
-                    Position.PositionName positionEnum = Position.PositionName.valueOf(positionName);
-                    position = new Position(positionId, positionEnum);
-                }
-
-                // Tạo Account
-                Account account = new Account(id, email, username, fullName, department, position, createDate);
-                accounts.add(account);
-            }
-
-            // B6: Đóng
-            resultSet.close();
-            statement.close();
-            JDBCUtils.closeConnection();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
         System.out.printf(
                 "|%4s|%22s|%12s|%22s|%20s|%16s|%12s|\n",
                 "ID",
@@ -111,23 +47,43 @@ public class QLAccount implements IQLAccount {
                 "Position",
                 "Create Date"
         );
-        System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
 
-        for (Account account : accounts) {
+        System.out.println(
+                "+----+----------------------+------------+----------------------+--------------------+----------------+------------+"
+        );
+
+
+        for (Account account :
+                accounts) {
+
             String departmentName = "";
+
             if (account.getDepartment() != null) {
-                departmentName = account.getDepartment().getName();
+
+                departmentName =
+                        account.getDepartment().getName();
             }
+
 
             String positionName = "";
+
             if (account.getPosition() != null) {
-                positionName = account.getPosition().getName().toString();
+
+                positionName =
+                        account.getPosition()
+                                .getName()
+                                .toString();
             }
 
+
             String createDate = "";
+
             if (account.getCreateDate() != null) {
-                createDate = account.getCreateDate().toString();
+
+                createDate =
+                        account.getCreateDate().toString();
             }
+
 
             System.out.printf(
                     "|%4d|%22s|%12s|%22s|%20s|%16s|%12s|\n",
@@ -140,240 +96,259 @@ public class QLAccount implements IQLAccount {
                     createDate
             );
         }
-        System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
+
+
+        System.out.println(
+                "+----+----------------------+------------+----------------------+--------------------+----------------+------------+"
+        );
     }
 
-    // Question 2: Tìm kiếm account theo username
+
+    // =========================================
+    // 2. Tìm kiếm account
+    // =========================================
+
     @Override
     public void timKiemAccount() {
-        System.out.println("==== TÌM KIẾM ACCOUNT THEO USERNAME ====");
-        System.out.print("Nhập username cần tìm: ");
-        String username = sc.nextLine();
 
-        List<Account> accounts = new ArrayList<>();
+        System.out.println(
+                "==== TÌM KIẾM ACCOUNT THEO USERNAME ===="
+        );
 
-        try {
-            Connection connection = JDBCUtils.getConnection();
-            String sql = "SELECT " +
-                            "a.id, " +
-                            "a.email, " +
-                            "a.username, " +
-                            "a.full_name, " +
-                            "a.create_date, " +
-                            "d.id AS department_id, " +
-                            "d.name AS department_name, " +
-                            "p.id AS position_id, " +
-                            "p.name AS position_name " +
-                            "FROM account a " +
-                            "LEFT JOIN department d " +
-                            "ON a.department_id = d.id " +
-                            "LEFT JOIN `position` p " +
-                            "ON a.position_id = p.id " +
-                            "WHERE a.username LIKE ?";
+        System.out.print(
+                "Nhập username cần tìm: "
+        );
 
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, "%" + username + "%");
-            ResultSet resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String email = resultSet.getString("email");
-                String usernameResult = resultSet.getString("username");
-                String fullName = resultSet.getString("full_name");
-                java.sql.Date sqlDate = resultSet.getDate("create_date");
-                LocalDate createDate = null;
-                if (sqlDate != null) {
-                    createDate = sqlDate.toLocalDate();
-                }
-
-                Department department = null;
-                String departmentName = resultSet.getString("department_name");
-                if (departmentName != null) {
-                    department = new Department(resultSet.getInt("department_id"), departmentName);
-                }
-
-                Position position = null;
-                String positionName = resultSet.getString("position_name");
-                if (positionName != null) {
-                    Position.PositionName positionEnum = Position.PositionName.valueOf(positionName);
-                    position = new Position(resultSet.getInt("position_id"), positionEnum);
-                }
-
-                Account account = new Account(
-                                id,
-                                email,
-                                usernameResult,
-                                fullName,
-                                department,
-                                position,
-                                createDate
-                        );
-                accounts.add(account);
-            }
+        String username =
+                sc.nextLine();
 
 
-            resultSet.close();
-            statement.close();
-            JDBCUtils.closeConnection();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        List<Account> accounts =
+                controller.findByUsername(
+                        username
+                );
+
 
         if (accounts.isEmpty()) {
-            System.out.println("Không tìm thấy account.");
+
+            System.out.println(
+                    "Không tìm thấy account."
+            );
+
             return;
         }
 
-        System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
-        System.out.printf(
-                "|%4s|%22s|%12s|%22s|%20s|%16s|%12s|\n",
-                "ID",
-                "Email",
-                "Username",
-                "Full Name",
-                "Department",
-                "Position",
-                "Create Date"
-        );
-        System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
 
-        for (Account account : accounts) {
-            String departmentName = "";
-            if (account.getDepartment() != null) {
-                departmentName = account.getDepartment().getName();
-            }
+        for (Account account :
+                accounts) {
 
-            String positionName = "";
-            if (account.getPosition() != null) {
-                positionName = account.getPosition().getName().toString();
-            }
-
-            String createDate = "";
-            if (account.getCreateDate() != null) {
-                createDate = account.getCreateDate().toString();
-            }
+            System.out.println(
+                    "+----+----------------------+------------+----------------------+"
+            );
 
             System.out.printf(
-                    "|%4d|%22s|%12s|%22s|%20s|%16s|%12s|\n",
+                    "|%4s|%22s|%12s|%22s|\n",
+                    "ID",
+                    "Email",
+                    "Username",
+                    "Full Name"
+            );
+
+            System.out.println(
+                    "+----+----------------------+------------+----------------------+"
+            );
+
+            System.out.printf(
+                    "|%4d|%22s|%12s|%22s|\n",
                     account.getId(),
                     account.getEmail(),
                     account.getUsername(),
-                    account.getFullName(),
-                    departmentName,
-                    positionName,
-                    createDate
+                    account.getFullName()
+            );
+
+            System.out.println(
+                    "+----+----------------------+------------+----------------------+"
             );
         }
-        System.out.println("+----+----------------------+------------+----------------------+--------------------+----------------+------------+");
     }
 
-    // Question 3: Thêm mới account
+
+    // =========================================
+    // 3. Thêm Account
+    // =========================================
+
     @Override
     public void themAccount() {
-        System.out.println("==== THÊM MỚI ACCOUNT ====");
+
+        System.out.println(
+                "==== THÊM MỚI ACCOUNT ===="
+        );
+
         System.out.print("Nhập id: ");
         int id = sc.nextInt();
         sc.nextLine();
+
+
         System.out.print("Nhập email: ");
         String email = sc.nextLine();
+
+
         System.out.print("Nhập username: ");
         String username = sc.nextLine();
+
+
         System.out.print("Nhập fullname: ");
         String fullName = sc.nextLine();
-        System.out.print("Nhập department id: ");
-        int departmentId = sc.nextInt();
-        System.out.print("Nhập position id: ");
-        int positionId = sc.nextInt();
+
+
+        System.out.print(
+                "Nhập department id: "
+        );
+
+        int departmentId =
+                sc.nextInt();
+
+
+        System.out.print(
+                "Nhập position id: "
+        );
+
+        int positionId =
+                sc.nextInt();
+
         sc.nextLine();
 
-        String sql = "INSERT INTO account " +
-                        "(id, email, username, full_name, " +
-                        "department_id, position_id, create_date) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try {
-            Connection connection = JDBCUtils.getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1, id);
-            statement.setString(2, email);
-            statement.setString(3, username);
-            statement.setString(4, fullName);
-            statement.setInt(5, departmentId);
-            statement.setInt(6, positionId);
-            statement.setDate(7, java.sql.Date.valueOf(LocalDate.now()));
+        Department department =
+                new Department(
+                        departmentId,
+                        ""
+                );
 
-            int c = statement.executeUpdate();
 
-            if (c > 0) {
-                System.out.println("Thêm account thành công!");
-            } else {
-                System.out.println("Thêm account thất bại!");
-            }
+        Position position =
+                new Position(
+                        positionId,
+                        null
+                );
 
-            statement.close();
-            JDBCUtils.closeConnection();
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        Account account =
+                new Account(
+                        id,
+                        email,
+                        username,
+                        fullName,
+                        department,
+                        position,
+                        LocalDate.now()
+                );
+
+
+        boolean result =
+                controller.insert(account);
+
+
+        if (result) {
+
+            System.out.println(
+                    "Thêm account thành công!"
+            );
+
+        } else {
+
+            System.out.println(
+                    "Thêm account thất bại!"
+            );
         }
     }
 
-    // Question 4: Xóa account theo username
+
+    // =========================================
+    // 4. Xóa Account
+    // =========================================
+
     @Override
     public void xoaAccount() {
-        System.out.println("==== XÓA ACCOUNT THEO USERNAME ====");
-        System.out.print("Nhập username cần xóa: ");
-        String username = sc.nextLine();
-        String sql = "DELETE FROM account " + "WHERE username = ?";
 
-        try {
-            Connection connection = JDBCUtils.getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, username);
+        System.out.println(
+                "==== XÓA ACCOUNT THEO USERNAME ===="
+        );
 
-            int c = statement.executeUpdate();
+        System.out.print(
+                "Nhập username cần xóa: "
+        );
 
-            if (c > 0) {
-                System.out.println("Xóa thành công!");
-            } else {
-                System.out.println("Xóa không thành công!");
-            }
+        String username =
+                sc.nextLine();
 
-            statement.close();
-            JDBCUtils.closeConnection();
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        boolean result =
+                controller.deleteByUsername(
+                        username
+                );
+
+
+        if (result) {
+
+            System.out.println(
+                    "Xóa thành công!"
+            );
+
+        } else {
+
+            System.out.println(
+                    "Xóa không thành công!"
+            );
         }
     }
 
-    // Question 5: Update fullname theo username
+
+    // =========================================
+    // 5. Update FullName
+    // =========================================
+
     @Override
     public void updateFullName() {
-        System.out.println("==== UPDATE FULLNAME THEO USERNAME ====");
-        System.out.print("Nhập username cần update: ");
-        String username = sc.nextLine();
-        System.out.print("Nhập fullname mới: ");
-        String fullName = sc.nextLine();
 
-        String sql = "UPDATE account " + "SET full_name = ? " + "WHERE username = ?";
+        System.out.println(
+                "==== UPDATE FULLNAME THEO USERNAME ===="
+        );
 
-        try {
-            Connection connection = JDBCUtils.getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, fullName);
-            statement.setString(2, username);
+        System.out.print(
+                "Nhập username cần update: "
+        );
 
-            int c = statement.executeUpdate();
+        String username =
+                sc.nextLine();
 
-            if (c > 0) {
-                System.out.println("Update thành công!");
-            } else {
-                System.out.println("Update không thành công!");
-            }
 
-            statement.close();
-            JDBCUtils.closeConnection();
-        } catch (Exception e) {
-            e.printStackTrace();
+        System.out.print(
+                "Nhập fullname mới: "
+        );
+
+        String fullName =
+                sc.nextLine();
+
+
+        boolean result =
+                controller.updateFullName(
+                        username,
+                        fullName
+                );
+
+
+        if (result) {
+
+            System.out.println(
+                    "Update thành công!"
+            );
+
+        } else {
+
+            System.out.println(
+                    "Update không thành công!"
+            );
         }
     }
 }
