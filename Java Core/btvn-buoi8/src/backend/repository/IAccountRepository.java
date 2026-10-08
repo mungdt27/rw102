@@ -1,6 +1,8 @@
 package backend.repository;
 
 import entity.Account;
+import entity.Department;
+import entity.Position;
 
 import java.util.List;
 
@@ -10,12 +12,19 @@ public interface IAccountRepository {
 
     List<Account> findByUsername(String username);
 
-    boolean insert(Account account);
+    List<Department> findAllDepartments();
 
-    boolean deleteByUsername(String username);
+    List<Position> findAllPositions();
 
-    boolean updateFullName(
-            String username,
-            String fullName
-    );
+    boolean existById(int id);
+
+    boolean existByUsername(String username);
+
+    boolean existByEmail(String email);
+
+    boolean save(Account account);
+
+    boolean deleteById(int id);
+
+    boolean updateUsername(int id, String username);
 }

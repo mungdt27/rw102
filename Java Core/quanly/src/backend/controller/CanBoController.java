@@ -28,4 +28,12 @@ public class CanBoController {
     public boolean updateByName(String ten, String diaChi) {
         return canBoService.updateByName(ten, diaChi);
     }
+
+    public boolean save(CanBo canBo) {
+        return canBoService.save(canBo);
+    }
+
+    public boolean existByName(String hoTen) {
+        return canBoService.existByName(hoTen);
+    }
 }

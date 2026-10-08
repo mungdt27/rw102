@@ -4,6 +4,8 @@ import backend.repository.IAccountRepository;
 import backend.repository.impl.AccountRepositoryImpl;
 import backend.service.IAccountService;
 import entity.Account;
+import entity.Department;
+import entity.Position;
 
 import java.util.List;
 
@@ -35,32 +37,64 @@ public class AccountServiceImpl
     }
 
     @Override
-    public boolean insert(
-            Account account
-    ) {
+    public List<Department> findAllDepartments() {
 
-        return repository.insert(account);
+        return repository.findAllDepartments();
     }
 
     @Override
-    public boolean deleteByUsername(
+    public List<Position> findAllPositions() {
+
+        return repository.findAllPositions();
+    }
+
+    @Override
+    public boolean existById(int id) {
+
+        return repository.existById(id);
+    }
+
+    @Override
+    public boolean existByUsername(
             String username
     ) {
 
-        return repository.deleteByUsername(
+        return repository.existByUsername(
                 username
         );
     }
 
     @Override
-    public boolean updateFullName(
-            String username,
-            String fullName
+    public boolean existByEmail(
+            String email
     ) {
 
-        return repository.updateFullName(
-                username,
-                fullName
+        return repository.existByEmail(
+                email
+        );
+    }
+
+    @Override
+    public boolean save(Account account) {
+
+        return repository.save(account);
+    }
+
+    @Override
+    public boolean deleteById(int id) {
+
+        return repository.deleteById(id);
+    }
+
+    @Override
+    public boolean updateUsername(
+            int id,
+            String username
+    ) {
+
+        return repository.updateUsername(
+                id,
+                username
         );
     }
 }

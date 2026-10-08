@@ -12,7 +12,7 @@ public class Account {
     private Position position;
     private LocalDate createDate;
 
-    // Constructor
+    // Dùng khi lấy dữ liệu từ DB
     public Account(
             int id,
             String email,
@@ -23,6 +23,23 @@ public class Account {
             LocalDate createDate
     ) {
         this.id = id;
+        this.email = email;
+        this.username = username;
+        this.fullName = fullName;
+        this.department = department;
+        this.position = position;
+        this.createDate = createDate;
+    }
+
+    // Dùng khi thêm mới, id sẽ tự tăng
+    public Account(
+            String email,
+            String username,
+            String fullName,
+            Department department,
+            Position position,
+            LocalDate createDate
+    ) {
         this.email = email;
         this.username = username;
         this.fullName = fullName;
@@ -85,18 +102,5 @@ public class Account {
 
     public void setCreateDate(LocalDate createDate) {
         this.createDate = createDate;
-    }
-
-    @Override
-    public String toString() {
-        return "Account{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", username='" + username + '\'' +
-                ", fullName='" + fullName + '\'' +
-                ", department=" + department +
-                ", position=" + position +
-                ", createDate=" + createDate +
-                '}';
     }
 }

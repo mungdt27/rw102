@@ -1,6 +1,8 @@
 package backend.service;
 
 import entity.Account;
+import entity.Department;
+import entity.Position;
 
 import java.util.List;
 
@@ -12,14 +14,26 @@ public interface IAccountService {
             String username
     );
 
-    boolean insert(Account account);
+    List<Department> findAllDepartments();
 
-    boolean deleteByUsername(
+    List<Position> findAllPositions();
+
+    boolean existById(int id);
+
+    boolean existByUsername(
             String username
     );
 
-    boolean updateFullName(
-            String username,
-            String fullName
+    boolean existByEmail(
+            String email
+    );
+
+    boolean save(Account account);
+
+    boolean deleteById(int id);
+
+    boolean updateUsername(
+            int id,
+            String username
     );
 }

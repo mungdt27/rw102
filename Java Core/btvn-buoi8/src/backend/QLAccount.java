@@ -105,7 +105,7 @@ public class QLAccount implements IQLAccount {
 
 
     // =========================================
-    // 2. Tìm kiếm account
+    // 2. Tìm kiếm account theo username
     // =========================================
 
     @Override
@@ -139,24 +139,25 @@ public class QLAccount implements IQLAccount {
         }
 
 
+        System.out.println(
+                "+----+----------------------+------------+----------------------+"
+        );
+
+        System.out.printf(
+                "|%4s|%22s|%12s|%22s|\n",
+                "ID",
+                "Email",
+                "Username",
+                "Full Name"
+        );
+
+        System.out.println(
+                "+----+----------------------+------------+----------------------+"
+        );
+
+
         for (Account account :
                 accounts) {
-
-            System.out.println(
-                    "+----+----------------------+------------+----------------------+"
-            );
-
-            System.out.printf(
-                    "|%4s|%22s|%12s|%22s|\n",
-                    "ID",
-                    "Email",
-                    "Username",
-                    "Full Name"
-            );
-
-            System.out.println(
-                    "+----+----------------------+------------+----------------------+"
-            );
 
             System.out.printf(
                     "|%4d|%22s|%12s|%22s|\n",
@@ -165,11 +166,12 @@ public class QLAccount implements IQLAccount {
                     account.getUsername(),
                     account.getFullName()
             );
-
-            System.out.println(
-                    "+----+----------------------+------------+----------------------+"
-            );
         }
+
+
+        System.out.println(
+                "+----+----------------------+------------+----------------------+"
+        );
     }
 
 
@@ -184,21 +186,36 @@ public class QLAccount implements IQLAccount {
                 "==== THÊM MỚI ACCOUNT ===="
         );
 
-        System.out.print("Nhập id: ");
-        int id = sc.nextInt();
-        sc.nextLine();
-
-
         System.out.print("Nhập email: ");
-        String email = sc.nextLine();
-
+        String email =
+                sc.nextLine();
 
         System.out.print("Nhập username: ");
-        String username = sc.nextLine();
-
+        String username =
+                sc.nextLine();
 
         System.out.print("Nhập fullname: ");
-        String fullName = sc.nextLine();
+        String fullName =
+                sc.nextLine();
+
+
+        // Chọn Department
+        System.out.println(
+                "Danh sách Department:"
+        );
+
+        List<Department> departments =
+                controller.findAllDepartments();
+
+        for (Department department :
+                departments) {
+
+            System.out.println(
+                    department.getId()
+                            + ". "
+                            + department.getName()
+            );
+        }
 
 
         System.out.print(
@@ -207,6 +224,25 @@ public class QLAccount implements IQLAccount {
 
         int departmentId =
                 sc.nextInt();
+
+
+        // Chọn Position
+        System.out.println(
+                "Danh sách Position:"
+        );
+
+        List<Position> positions =
+                controller.findAllPositions();
+
+        for (Position position :
+                positions) {
+
+            System.out.println(
+                    position.getId()
+                            + ". "
+                            + position.getName()
+            );
+        }
 
 
         System.out.print(
@@ -235,7 +271,6 @@ public class QLAccount implements IQLAccount {
 
         Account account =
                 new Account(
-                        id,
                         email,
                         username,
                         fullName,
@@ -245,8 +280,9 @@ public class QLAccount implements IQLAccount {
                 );
 
 
+        // Đổi insert() thành save()
         boolean result =
-                controller.insert(account);
+                controller.save(account);
 
 
         if (result) {
@@ -265,28 +301,30 @@ public class QLAccount implements IQLAccount {
 
 
     // =========================================
-    // 4. Xóa Account
+    // 4. Xóa Account theo ID
     // =========================================
 
     @Override
     public void xoaAccount() {
 
         System.out.println(
-                "==== XÓA ACCOUNT THEO USERNAME ===="
+                "==== XÓA ACCOUNT THEO ID ===="
         );
 
         System.out.print(
-                "Nhập username cần xóa: "
+                "Nhập id account cần xóa: "
         );
 
-        String username =
-                sc.nextLine();
+        int id =
+                sc.nextInt();
+
+        sc.nextLine();
 
 
+        // Đổi deleteByUsername()
+        // thành deleteById()
         boolean result =
-                controller.deleteByUsername(
-                        username
-                );
+                controller.deleteById(id);
 
 
         if (result) {
@@ -305,36 +343,40 @@ public class QLAccount implements IQLAccount {
 
 
     // =========================================
-    // 5. Update FullName
+    // 5. Update username theo ID
     // =========================================
 
     @Override
-    public void updateFullName() {
+    public void updateUsername() {
 
         System.out.println(
-                "==== UPDATE FULLNAME THEO USERNAME ===="
+                "==== UPDATE USERNAME THEO ID ===="
         );
 
         System.out.print(
-                "Nhập username cần update: "
+                "Nhập id account cần update: "
+        );
+
+        int id =
+                sc.nextInt();
+
+        sc.nextLine();
+
+
+        System.out.print(
+                "Nhập username mới: "
         );
 
         String username =
                 sc.nextLine();
 
 
-        System.out.print(
-                "Nhập fullname mới: "
-        );
-
-        String fullName =
-                sc.nextLine();
-
-
+        // Đổi updateFullName()
+        // thành updateUsername()
         boolean result =
-                controller.updateFullName(
-                        username,
-                        fullName
+                controller.updateUsername(
+                        id,
+                        username
                 );
 
 

@@ -132,4 +132,61 @@ public class CanBoRepositoryImpl implements ICanBoRepository {
         }
         return false;
     }
+
+    @Override
+    public boolean save(CanBo canBo) {
+        String column = null;
+        String value = null;
+        if (canBo instanceof CongNhan) {
+            column = "bac";
+            value = "'CN', " + ((CongNhan) canBo).getBac();
+        } else if (canBo instanceof KySu) {
+            column = "nganh";
+            value = "'KS', " + ((KySu) canBo).getNganhDaoTao();
+        } else {
+            column = "cong_viec";
+            value = "'NV', " + ((NhanVien) canBo).getCongViec();
+        }
+        String sql = String.format("INSERT INTO can_bo (ho_ten, tuoi, gioi_tinh, dia_chi, loai, %s)" +
+                " VALUES (?, ?, ?, ?, %s)", column, value);
+        try {
+            Connection conn = JDBCUtils.getConnection();
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setString(1, canBo.getHoTen());
+            statement.setInt(2, canBo.getTuoi());
+            statement.setString(3, canBo.getGioiTinh().name());// gioiTinh.name() chuyeern tuwf enum -> string
+            statement.setString(4, canBo.getDiaChi());
+
+            int c = statement.executeUpdate();// c: số row thay đổi trong DB
+            return c > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {// cụm này luôn thực hien cuối cùng
+            JDBCUtils.closeConnection();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean existByName(String hoTen) {
+        try {
+            // tạo kết nối đến Database
+            Connection connection = JDBCUtils.getConnection();
+            String sql = "select * from can_bo where ho_ten like ?";
+
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, hoTen);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {// next dc là có dữ liệu  -> tòn tại
+                return true;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {// cụm này luôn thực hien cuối cùng
+            JDBCUtils.closeConnection();
+        }
+        return false;
+    }
 }
