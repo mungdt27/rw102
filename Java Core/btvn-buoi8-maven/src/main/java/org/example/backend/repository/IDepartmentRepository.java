@@ -1,0 +1,27 @@
+package org.example.backend.repository;
+
+import org.example.entity.Department;
+
+import java.util.List;
+
+public interface IDepartmentRepository {
+
+    List<Department> findAll();
+
+    List<Department> findByName(
+            String name
+    );
+
+    boolean insert(
+            Department department
+    );
+
+    boolean deleteById(
+            int id
+    );
+
+    boolean updateName(
+            int id,
+            String name
+    );
+}

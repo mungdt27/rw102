@@ -1,0 +1,39 @@
+package org.example.backend.service;
+
+import org.example.entity.Account;
+import org.example.entity.Department;
+import org.example.entity.Position;
+
+import java.util.List;
+
+public interface IAccountService {
+
+    List<Account> findAll();
+
+    List<Account> findByUsername(
+            String username
+    );
+
+    List<Department> findAllDepartments();
+
+    List<Position> findAllPositions();
+
+    boolean existById(int id);
+
+    boolean existByUsername(
+            String username
+    );
+
+    boolean existByEmail(
+            String email
+    );
+
+    boolean save(Account account);
+
+    boolean deleteById(int id);
+
+    boolean updateUsername(
+            int id,
+            String username
+    );
+}
