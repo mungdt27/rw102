@@ -359,6 +359,16 @@ public class AccountFunction {
         }
     }
 
+    // Question 6: Import dữ liệu từ file CSV
+    public void importCSV() {
+        System.out.println("==== IMPORT DỮ LIỆU ACCOUNT TỪ FILE CSV ====");
+        System.out.print("Nhập đường dẫn file CSV: ");
+        String path = sc.nextLine();
+
+        String message = accountController.importCSV(path);
+        System.out.println(message);
+    }
+
     // Menu riêng cho Account
     public void menu() {
 
@@ -370,7 +380,8 @@ public class AccountFunction {
             System.out.println("3. Hiển thị toàn bộ Account.");
             System.out.println("4. Xóa Account theo ID.");
             System.out.println("5. Update username theo ID.");
-            System.out.println("6. Quay lại menu chính.");
+            System.out.println("6. Import dữ liệu từ file CSV.");
+            System.out.println("7. Quay lại menu chính.");
             System.out.print("Mời bạn chọn: ");
 
             String choice = sc.nextLine();
@@ -392,6 +403,9 @@ public class AccountFunction {
                     updateUsername();
                     break;
                 case "6":
+                    this.importCSV();
+                    break;
+                case "7":
                     return;
                 default:
                     System.out.println("Chọn sai, chọn lại!");

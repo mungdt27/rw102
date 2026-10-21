@@ -8,6 +8,8 @@ public interface IDepartmentService {
 
     List<Department> findAll();
 
+    String importCSV(String path);
+
     List<Department> findByName(
             String name
     );

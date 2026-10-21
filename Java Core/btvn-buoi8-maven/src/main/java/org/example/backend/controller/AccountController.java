@@ -85,4 +85,8 @@ public class AccountController {
                 username
         );
     }
+
+    public String importCSV(String path) {
+        return accountService.importCSV(path);
+    }
 }

@@ -12,6 +12,12 @@ public interface IDepartmentRepository {
             String name
     );
 
+    boolean create(Department department);
+
+    void createAll(List<Department> departments);
+
+    boolean existByName(String name);
+
     boolean insert(
             Department department
     );

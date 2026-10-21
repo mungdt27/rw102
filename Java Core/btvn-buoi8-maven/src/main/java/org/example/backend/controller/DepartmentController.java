@@ -31,4 +31,8 @@ public class DepartmentController {
     public boolean updateName(int id, String name) {
         return departmentService.updateName(id, name);
     }
+
+    public String importCSV(String path) {
+        return departmentService.importCSV(path);
+    }
 }

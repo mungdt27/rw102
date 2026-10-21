@@ -36,4 +36,6 @@ public interface IAccountService {
             int id,
             String username
     );
+
+    String importCSV(String path);
 }
