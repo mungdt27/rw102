@@ -1,406 +1,56 @@
 package org.example.frontend;
 
 import org.example.backend.controller.AccountController;
+import org.example.backend.controller.DepartmentController;
+import org.example.backend.controller.PositionController;
 import org.example.entity.Account;
 import org.example.entity.Department;
 import org.example.entity.Position;
+import org.example.utils.ScannerUtils;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class AccountFunction {
-
     private AccountController accountController;
-    private Scanner sc;
+    private DepartmentController departmentController;
+    private PositionController positionController;
+    private Scanner scanner;
 
-    public AccountFunction(Scanner sc) {
-        this.sc = sc;
+    public AccountFunction() {
         this.accountController = new AccountController();
+        this.departmentController = new DepartmentController();
+        this.positionController = new PositionController();
+        this.scanner = new Scanner(System.in);
     }
 
-    // In danh sách Account dạng bảng
-    private void inDanhSachAccount(List<Account> accounts) {
-
-        System.out.println(
-                "+----+----------------------+------------+----------------------+"
-        );
-        System.out.printf(
-                "|%4s|%22s|%12s|%22s|\n",
-                "ID", "Email", "Username", "Full Name"
-        );
-        System.out.println(
-                "+----+----------------------+------------+----------------------+"
-        );
-
-        for (Account account : accounts) {
-            System.out.printf(
-                    "|%4d|%22s|%12s|%22s|\n",
-                    account.getId(),
-                    account.getEmail(),
-                    account.getUsername(),
-                    account.getFullName()
-            );
-        }
-
-        System.out.println(
-                "+----+----------------------+------------+----------------------+"
-        );
-    }
-
-    // Question 1: Thêm mới Account
-    public void themMoi() {
-
-        System.out.println("==== THÊM MỚI ACCOUNT ====");
-
-        // Username: 5-50 ký tự, không trùng
-        String username;
-
-        while (true) {
-            System.out.print("Nhập username: ");
-            username = sc.nextLine().trim();
-
-            if (username.length() < 5 || username.length() > 50) {
-                System.err.println("Username từ 5 đến 50 ký tự! Nhập lại.");
-                continue;
-            }
-
-            if (accountController.existByUsername(username)) {
-                System.err.println("Username đã tồn tại! Nhập lại.");
-                continue;
-            }
-
-            break;
-        }
-
-        // Email: 5-50 ký tự, đúng định dạng, không trùng
-        String email;
-
-        while (true) {
-            System.out.print("Nhập email: ");
-            email = sc.nextLine().trim();
-
-            if (email.length() < 5 || email.length() > 50) {
-                System.err.println("Email từ 5 đến 50 ký tự! Nhập lại.");
-                continue;
-            }
-
-            if (!email.matches(
-                    "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
-            )) {
-                System.err.println("Email không đúng định dạng! Nhập lại.");
-                continue;
-            }
-
-            if (accountController.existByEmail(email)) {
-                System.err.println("Email đã tồn tại! Nhập lại.");
-                continue;
-            }
-
-            break;
-        }
-
-        // FullName: 5-50 ký tự
-        String fullName;
-
-        while (true) {
-            System.out.print("Nhập fullname: ");
-            fullName = sc.nextLine().trim();
-
-            if (fullName.length() < 5 || fullName.length() > 50) {
-                System.err.println("FullName từ 5 đến 50 ký tự! Nhập lại.");
-                continue;
-            }
-
-            break;
-        }
-
-        // Lấy danh sách Department từ DB
-        List<Department> departments =
-                accountController.findAllDepartments();
-
-        if (departments.isEmpty()) {
-            System.out.println("Không có Department để lựa chọn!");
-            return;
-        }
-
-        System.out.println("==== DANH SÁCH DEPARTMENT ====");
-        System.out.println("+-----+--------------------+");
-        System.out.printf("|%5s|%20s|\n", "ID", "Name");
-        System.out.println("+-----+--------------------+");
-
-        for (Department d : departments) {
-            System.out.printf(
-                    "|%5d|%20s|\n",
-                    d.getId(),
-                    d.getName()
-            );
-        }
-
-        System.out.println("+-----+--------------------+");
-
-        Department department = null;
-
-        while (department == null) {
-            System.out.print("Nhập department id: ");
-
-            if (!sc.hasNextInt()) {
-                sc.nextLine();
-                System.err.println("Department ID phải là số! Nhập lại.");
-                continue;
-            }
-
-            int departmentId = sc.nextInt();
-            sc.nextLine();
-
-            for (Department d : departments) {
-                if (d.getId() == departmentId) {
-                    department = d;
-                    break;
-                }
-            }
-
-            if (department == null) {
-                System.err.println("Department ID không tồn tại! Nhập lại.");
-            }
-        }
-
-        // Lấy danh sách Position từ DB
-        List<Position> positions =
-                accountController.findAllPositions();
-
-        if (positions.isEmpty()) {
-            System.out.println("Không có Position để lựa chọn!");
-            return;
-        }
-
-        System.out.println("==== DANH SÁCH POSITION ====");
-        System.out.println("+-----+--------------------+");
-        System.out.printf("|%5s|%20s|\n", "ID", "Name");
-        System.out.println("+-----+--------------------+");
-
-        for (Position p : positions) {
-            System.out.printf(
-                    "|%5d|%20s|\n",
-                    p.getId(),
-                    p.getName()
-            );
-        }
-
-        System.out.println("+-----+--------------------+");
-
-        Position position = null;
-
-        while (position == null) {
-            System.out.print("Nhập position id: ");
-
-            if (!sc.hasNextInt()) {
-                sc.nextLine();
-                System.err.println("Position ID phải là số! Nhập lại.");
-                continue;
-            }
-
-            int positionId = sc.nextInt();
-            sc.nextLine();
-
-            for (Position p : positions) {
-                if (p.getId() == positionId) {
-                    position = p;
-                    break;
-                }
-            }
-
-            if (position == null) {
-                System.err.println("Position ID không tồn tại! Nhập lại.");
-            }
-        }
-
-        // Tạo object Account, không nhập ID vì DB tự sinh
-        Account account = new Account(
-                email,
-                username,
-                fullName,
-                department,
-                position,
-                LocalDate.now()
-        );
-
-        boolean check = accountController.save(account);
-
-        if (check) {
-            System.out.println("Thêm mới thành công!");
-        } else {
-            System.out.println("Thêm mới thất bại!");
-        }
-    }
-
-    // Question 2: Tìm kiếm Account theo username
-    public void timKiem() {
-
-        System.out.println("==== TÌM KIẾM ACCOUNT ====");
-        System.out.print("Nhập username cần tìm: ");
-
-        String username = sc.nextLine().trim();
-
-        List<Account> accounts =
-                accountController.findByUsername(username);
-
-        if (accounts.isEmpty()) {
-            System.out.println("Không có kết quả tương ứng!");
-            return;
-        }
-
-        inDanhSachAccount(accounts);
-    }
-
-    // Question 3: Hiển thị toàn bộ Account
-    public void hienThiToanBo() {
-
-        System.out.println("==== HIỂN THỊ TOÀN BỘ ACCOUNT ====");
-
-        List<Account> accounts = accountController.findAll();
-
-        if (accounts.isEmpty()) {
-            System.out.println("Không có Account nào!");
-            return;
-        }
-
-        inDanhSachAccount(accounts);
-    }
-
-    // Question 4: Xóa Account theo ID
-    public void deleteById() {
-
-        System.out.println("==== XÓA ACCOUNT THEO ID ====");
-
-        int id;
-
-        while (true) {
-            System.out.print("Nhập ID Account cần xóa: ");
-
-            if (!sc.hasNextInt()) {
-                sc.nextLine();
-                System.err.println("ID phải là số! Nhập lại.");
-                continue;
-            }
-
-            id = sc.nextInt();
-            sc.nextLine();
-
-            if (!accountController.existById(id)) {
-                System.err.println("ID không tồn tại! Nhập lại.");
-                continue;
-            }
-
-            break;
-        }
-
-        boolean check = accountController.deleteById(id);
-
-        if (check) {
-            System.out.println("Xóa thành công!");
-        } else {
-            System.out.println("Xóa không thành công!");
-        }
-    }
-
-    // Question 5: Update username theo ID
-    public void updateUsername() {
-
-        System.out.println("==== UPDATE USERNAME THEO ID ====");
-
-        int id;
-
-        while (true) {
-            System.out.print("Nhập ID Account cần update: ");
-
-            if (!sc.hasNextInt()) {
-                sc.nextLine();
-                System.err.println("ID phải là số! Nhập lại.");
-                continue;
-            }
-
-            id = sc.nextInt();
-            sc.nextLine();
-
-            if (!accountController.existById(id)) {
-                System.err.println("ID không tồn tại! Nhập lại.");
-                continue;
-            }
-
-            break;
-        }
-
-        String username;
-
-        while (true) {
-            System.out.print("Nhập username mới: ");
-            username = sc.nextLine().trim();
-
-            if (username.length() < 5 || username.length() > 50) {
-                System.err.println("Username từ 5 đến 50 ký tự! Nhập lại.");
-                continue;
-            }
-
-            if (accountController.existByUsername(username)) {
-                System.err.println("Username đã tồn tại! Nhập lại.");
-                continue;
-            }
-
-            break;
-        }
-
-        boolean check = accountController.updateUsername(id, username);
-
-        if (check) {
-            System.out.println("Update thành công!");
-        } else {
-            System.out.println("Update không thành công!");
-        }
-    }
-
-    // Question 6: Import dữ liệu từ file CSV
-    public void importCSV() {
-        System.out.println("==== IMPORT DỮ LIỆU ACCOUNT TỪ FILE CSV ====");
-        System.out.print("Nhập đường dẫn file CSV: ");
-        String path = sc.nextLine();
-
-        String message = accountController.importCSV(path);
-        System.out.println(message);
-    }
-
-    // Menu riêng cho Account
     public void menu() {
-
         while (true) {
-            System.out.println();
-            System.out.println("==== QUẢN LÝ ACCOUNT ====");
-            System.out.println("1. Thêm mới Account.");
-            System.out.println("2. Tìm kiếm Account theo username.");
-            System.out.println("3. Hiển thị toàn bộ Account.");
-            System.out.println("4. Xóa Account theo ID.");
-            System.out.println("5. Update username theo ID.");
-            System.out.println("6. Import dữ liệu từ file CSV.");
-            System.out.println("7. Quay lại menu chính.");
-            System.out.print("Mời bạn chọn: ");
-
-            String choice = sc.nextLine();
-
+            System.out.println("==== Mời bạn chọn chức năng ====");
+            System.out.println("1. Hiển thị toàn bộ account");
+            System.out.println("2. Thêm account");
+            System.out.println("3. Xóa account theo id");
+            System.out.println("4. Update account theo id");
+            System.out.println("5. Tìm kiếm theo username");
+            System.out.println("6. Import file CSV");
+            System.out.println("7. Thoát");
+            String choice = scanner.nextLine();
             switch (choice) {
                 case "1":
-                    themMoi();
+                    this.findAll();
                     break;
                 case "2":
-                    timKiem();
+                    this.create();
                     break;
                 case "3":
-                    hienThiToanBo();
+                    this.delete();
                     break;
                 case "4":
-                    deleteById();
+                    this.update();
                     break;
                 case "5":
-                    updateUsername();
+                    this.findByUsername();
                     break;
                 case "6":
                     this.importCSV();
@@ -408,8 +58,238 @@ public class AccountFunction {
                 case "7":
                     return;
                 default:
-                    System.out.println("Chọn sai, chọn lại!");
+                    System.out.println("Chọn sai! Chọn lại!");
             }
         }
+    }
+
+    private void importCSV() {
+        System.out.println("==== CHỨC NĂNG IMPORT ACCOUNT ====");
+        // C:\Users\PNV\Desktop\rw102\Java Core\csv\input_department.csv
+        System.out.println("Nhập đường dẫn file CSV: ");
+        String path = scanner.nextLine();
+        String message = accountController.importCSV(path);
+        System.out.println(message);
+    }
+
+    private void findByUsername() {
+        System.out.println("==== CHỨC NĂNG UPDATE ACCOUNT ====");
+        System.out.println("Mời bạn nhập Username muốn tìm: ");
+        String username = scanner.nextLine();
+
+        List<Account> accounts = accountController.findByUsername(username);
+
+        if (accounts.isEmpty()) {// ds trống
+            System.out.println("Không có kết quả tương ứng");
+        } else {
+            System.out.println("+-----+-------------------------+-------------------------+-------------------------+-------------------------+-------------------------+");
+            System.out.printf("|%5s|%25s|%25s|%25s|%25s|%25s|\n", "ID", "Username", "Full Name", "Email", "Department", "Position");
+            System.out.println("+-----+-------------------------+-------------------------+-------------------------+-------------------------+-------------------------+");
+            for (Account acc : accounts) {
+                String depName = Objects.nonNull(acc.getDepartment()) ? acc.getDepartment().getName() : "";
+                String posName = Objects.nonNull(acc.getPosition()) ? acc.getPosition().getName().name() : "";
+                System.out.printf("|%5s|%25s|%25s|%25s|%25s|%25s|\n"
+                        , acc.getId(), acc.getUsername(), acc.getFullName(), acc.getEmail()
+                        , depName, posName);
+            }
+            System.out.println("+-----+-------------------------+-------------------------+-------------------------+-------------------------+-------------------------+");
+        }
+    }
+
+    private void update() {
+        System.out.println("==== CHỨC NĂNG UPDATE ACCOUNT ====");
+        System.out.println("Mời bạn nhập ID account muốn update thông tin: ");
+        int id = 0;
+        while (true) {
+            if (scanner.hasNextInt()) {// 1 kiem tra xem co phai la so ko
+                id = scanner.nextInt();
+                scanner.nextLine();
+                if (id <= 0) {  // 2 kiem tra <= 0
+                    System.err.println("Vui lòng nhập số > 0: ");
+                } else {
+                    // 3 kiem tra id  co ton tai ko
+                    boolean checkExists = accountController.checkIdExists(id);
+                    if (!checkExists) {
+                        System.err.println("ID này không tồn tại! Nhập lại: ");
+                    } else {
+                        break;
+                    }
+                }
+            } else {
+                System.err.println("Vui lòng nhập số! Nhập lại: ");
+                scanner.nextLine();
+            }
+        }
+
+        String username;
+        while (true) {
+            System.out.println("Nhập username: ");
+            username = scanner.nextLine();
+            if (username.trim().length() < 5 || username.trim().length() > 50) {
+                System.err.println("Nhập username dài từ 5-50 kí tự");
+                continue;
+            }
+            if (accountController.checkUsernameExists(username, id)) {
+                System.err.println("Username này đã tồn tại");
+                continue;
+            }
+            break;
+        }
+
+        boolean check = accountController.update(id, username);
+        if (check) {
+            System.out.println("Update successfully!");
+        } else {
+            System.out.println("Update failed!");
+        }
+    }
+
+    private void delete() {
+        System.out.println("==== CHỨC NĂNG XÓA ACCOUNT ====");
+        System.out.println("Mời bạn nhập ID account muốn xóa: ");
+        int id = 0;
+        while (true) {
+            if (scanner.hasNextInt()) {// 1 kiem tra xem co phai la so ko
+                id = scanner.nextInt();
+                scanner.nextLine();
+                if (id <= 0) {  // 2 kiem tra <= 0
+                    System.err.println("Vui lòng nhập số > 0: ");
+                } else {
+                    // 3 kiem tra id  co ton tai ko
+                    boolean checkExists = accountController.checkIdExists(id);
+                    if (!checkExists) {
+                        System.err.println("ID này không tồn tại! Nhập lại: ");
+                    } else {
+                        break;
+                    }
+                }
+            } else {
+                System.err.println("Vui lòng nhập số! Nhập lại: ");
+                scanner.nextLine();
+            }
+        }
+
+        // xóa
+        boolean canDelete = accountController.delete(id);
+        if (canDelete) {
+            System.out.println("Delete successfully!");
+        } else {
+            System.out.println("Delete failed!");
+        }
+    }
+
+    private void create() {
+        System.out.println("====CHỨC NĂNG TẠO MỚI ACCOUNT ====");
+        Account account = new Account();
+
+        while (true) {
+            System.out.println("Nhập username: ");
+            String username = ScannerUtils.inputText(5, 50, "Độ dài username từ 5- 50 kí tự! Nhập lại:");
+            if (accountController.checkUsernameExists(username, null)) {
+                System.err.println("Username này đã tồn tại");
+                continue;
+            }
+            account.setUsername(username);
+            break;
+        }
+
+        while (true) {
+            System.out.println("Nhập fullname: ");
+            String fullName = ScannerUtils.inputText(5, 50, "Độ dài fullname từ 5- 50 kí tự! Nhập lại:");
+            account.setFullName(fullName);
+            break;
+        }
+
+        while (true) {
+            String email = ScannerUtils.inputEmail();
+            if (accountController.checkEmailExists(email, null)) {
+                System.err.println("email này đã tồn tại");
+                continue;
+            }
+            account.setEmail(email);
+            break;
+        }
+
+        List<Department> departments = departmentController.findAll();
+
+        while (true) {
+            Department department = null;
+            System.out.println("Chọn ID phòng ban muốn thêm vào: ");
+
+            for (Department dep : departments) {
+                System.out.printf("ID: %s - Name: %s\n", dep.getId(), dep.getName());
+            }
+            if (scanner.hasNextInt()) {
+                int depId = scanner.nextInt();
+                scanner.nextLine();
+                if (depId <= 0) {
+                    System.err.println("DepartmentID phải lớn hơn 0! Nhập lại: ");
+                    continue;
+                }
+
+                // tìm depId có tồn tại ko
+                for (Department dep : departments) {
+                    if (dep.getId() == depId) {
+                        department = dep;
+                        break;
+                    }
+                }
+                if (Objects.isNull(department)) {
+                    System.out.println("DepartmentID ko tồn tại! Nhập lại: ");
+                } else {
+                    account.setDepartment(department);
+                    break;
+                }
+            } else {
+                System.out.println("Vui lòng nhập số. Chọn lại phòng ban!");
+                scanner.nextLine();
+            }
+        }
+
+        List<Position> positions = positionController.findAll();
+        while (true) {
+            Position position = null;
+            System.out.println("Chọn ID chức vụ muốn thêm vào: ");
+            for (Position pos : positions) {
+                System.out.printf("ID: %s - Name: %s\n", pos.getId(), pos.getName());
+            }
+            int posID = ScannerUtils.inputInt(false, 1, 5, "Vui lòng nhập số nguyên và lớn hơn 0! ");
+            for (Position pos : positions) {
+                if (pos.getId() == posID) {
+                    position = pos;
+                    break;
+                }
+            }
+            if (Objects.isNull(position)) {
+                System.out.println("PositionID ko tồn tại. Nhập lại: ");
+            } else {
+                account.setPosition(position);
+                break;
+            }
+
+        }
+
+        boolean check = accountController.create(account);// username, fullName, email,depID, posID
+        if (check) {
+            System.out.println("Create successfully!");
+        } else {
+            System.out.println("Create failed!");
+        }
+    }
+
+    private void findAll() {
+        System.out.println("==== HIỂN THỊ TOÀN BỘ ACCOUNT ====");
+        List<Account> accounts = accountController.findAll();
+        System.out.println("+-----+-------------------------+-------------------------+-------------------------+-------------------------+-------------------------+");
+        System.out.printf("|%5s|%25s|%25s|%25s|%25s|%25s|\n", "ID", "Username", "Full Name", "Email", "Department", "Position");
+        System.out.println("+-----+-------------------------+-------------------------+-------------------------+-------------------------+-------------------------+");
+        for (Account acc : accounts) {
+            String depName = Objects.nonNull(acc.getDepartment()) ? acc.getDepartment().getName() : "";
+            String posName = Objects.nonNull(acc.getPosition()) ? acc.getPosition().getName().name() : "";
+            System.out.printf("|%5s|%25s|%25s|%25s|%25s|%25s|\n"
+                    , acc.getId(), acc.getUsername(), acc.getFullName(), acc.getEmail()
+                    , depName, posName);
+        }
+        System.out.println("+-----+-------------------------+-------------------------+-------------------------+-------------------------+-------------------------+");
     }
 }

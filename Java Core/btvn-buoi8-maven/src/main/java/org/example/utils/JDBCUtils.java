@@ -5,29 +5,30 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class JDBCUtils {
-    private static Connection connection;
+    private Connection connection;
+
+    // hàm kết nối đến DB
     public static Connection getConnection() {
-        String url = "jdbc:mysql://localhost:3306/btvn_buoi8";
+        Connection connection = null;
+        String url = "jdbc:mysql://localhost:3306/rw102";
         String username = "root";
         String password = "";
         try {
-            connection = DriverManager.getConnection(
-                    url,
-                    username,
-                    password
-            );
+            connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return connection;
     }
-    public static void closeConnection() {
-        try {
-            if (connection != null) {
+
+    // ngắt kết nối
+    public static void closeConnection(Connection connection) {
+        if (connection != null) {
+            try {
                 connection.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 }

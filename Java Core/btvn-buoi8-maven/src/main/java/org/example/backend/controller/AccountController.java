@@ -1,92 +1,52 @@
 package org.example.backend.controller;
 
+
 import org.example.backend.service.IAccountService;
 import org.example.backend.service.impl.AccountServiceImpl;
 import org.example.entity.Account;
-import org.example.entity.Department;
-import org.example.entity.Position;
 
 import java.util.List;
 
 public class AccountController {
-
-    private IAccountService accountService;
+    private IAccountService service;
 
     public AccountController() {
-
-        accountService =
-                new AccountServiceImpl();
+        this.service = new AccountServiceImpl();
     }
 
     public List<Account> findAll() {
-
-        return accountService.findAll();
+        return service.findAll();
     }
 
-    public List<Account> findByUsername(
-            String username
-    ) {
-
-        return accountService.findByUsername(
-                username
-        );
+    public boolean create(Account account) {
+        return service.create(account);
     }
 
-    public List<Department> findAllDepartments() {
-
-        return accountService.findAllDepartments();
+    public boolean update(int id, String username) {
+        return service.update(id, username);
     }
 
-    public List<Position> findAllPositions() {
-
-        return accountService.findAllPositions();
+    public boolean delete(int id) {
+        return service.delete(id);
     }
 
-    public boolean existById(int id) {
-
-        return accountService.existById(id);
+    public boolean checkUsernameExists(String username, Integer id) {
+        return service.checkUsernameExists(username, id);
     }
 
-    public boolean existByUsername(
-            String username
-    ) {
-
-        return accountService.existByUsername(
-                username
-        );
+    public boolean checkEmailExists(String email, Integer id) {
+        return service.checkEmailExists(email, id);
     }
 
-    public boolean existByEmail(
-            String email
-    ) {
-
-        return accountService.existByEmail(
-                email
-        );
+    public boolean checkIdExists(int id) {
+        return service.checkIdExists(id);
     }
 
-    public boolean save(Account account) {
-
-        return accountService.save(account);
-    }
-
-    public boolean deleteById(int id) {
-
-        return accountService.deleteById(id);
-    }
-
-    public boolean updateUsername(
-            int id,
-            String username
-    ) {
-
-        return accountService.updateUsername(
-                id,
-                username
-        );
+    public List<Account> findByUsername(String username) {
+        return service.findByUsername(username);
     }
 
     public String importCSV(String path) {
-        return accountService.importCSV(path);
+        return service.importCSV(path);
     }
 }

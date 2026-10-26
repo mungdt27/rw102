@@ -4,661 +4,260 @@ import org.example.backend.repository.IAccountRepository;
 import org.example.entity.Account;
 import org.example.entity.Department;
 import org.example.entity.Position;
+import org.example.entity.PositionName;
 import org.example.utils.JDBCUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class AccountRepositoryImpl
-        implements IAccountRepository {
-
+public class AccountRepositoryImpl implements IAccountRepository {
     @Override
     public List<Account> findAll() {
-
-        List<Account> accounts =
-                new ArrayList<>();
-
+        List<Account> accounts = new ArrayList<>();
         try {
-
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "SELECT " +
-                            "a.id, " +
-                            "a.email, " +
-                            "a.username, " +
-                            "a.full_name, " +
-                            "a.create_date, " +
-                            "d.id AS department_id, " +
-                            "d.name AS department_name, " +
-                            "p.id AS position_id, " +
-                            "p.name AS position_name " +
-                            "FROM account a " +
-                            "LEFT JOIN department d " +
-                            "ON a.department_id = d.id " +
-                            "LEFT JOIN `position` p " +
-                            "ON a.position_id = p.id";
-
-            Statement statement =
-                    connection.createStatement();
-
-            ResultSet resultSet =
-                    statement.executeQuery(sql);
-
+            Connection connection = JDBCUtils.getConnection();
+            String sql = "select acc.*, de.department_name, po.position_name \n" +
+                    "from account acc\n" +
+                    "left join department de on acc.department_id = de.department_id\n" +
+                    "left join position po on acc.position_id = po.position_id";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
-
-                int id =
-                        resultSet.getInt("id");
-
-                String email =
-                        resultSet.getString("email");
-
-                String username =
-                        resultSet.getString("username");
-
-                String fullName =
-                        resultSet.getString("full_name");
-
-                java.sql.Date sqlDate =
-                        resultSet.getDate("create_date");
-
-                LocalDate createDate = null;
-
-                if (sqlDate != null) {
-                    createDate =
-                            sqlDate.toLocalDate();
-                }
+                int id = resultSet.getInt("account_id");
+                String username = resultSet.getString("username");
+                String fullName = resultSet.getString("full_name");
+                String email = resultSet.getString("email");
 
                 Department department = null;
-
-                String departmentName =
-                        resultSet.getString(
-                                "department_name"
-                        );
-
-                if (departmentName != null) {
-
-                    department =
-                            new Department(
-                                    resultSet.getInt(
-                                            "department_id"
-                                    ),
-                                    departmentName
-                            );
-                }
-
                 Position position = null;
-
-                String positionName =
-                        resultSet.getString(
-                                "position_name"
-                        );
-
-                if (positionName != null) {
-
-                    position =
-                            new Position(
-                                    resultSet.getInt(
-                                            "position_id"
-                                    ),
-                                    Position.PositionName.valueOf(
-                                            positionName
-                                    )
-                            );
+                if (Objects.nonNull(resultSet.getString("department_id"))) {
+                    int departmentId = resultSet.getInt("department_id");
+                    String departmentName = resultSet.getString("department_name");
+                    department = new Department(departmentId, departmentName);
                 }
-
-                Account account =
-                        new Account(
-                                id,
-                                email,
-                                username,
-                                fullName,
-                                department,
-                                position,
-                                createDate
-                        );
-
+                if (Objects.nonNull(resultSet.getString("position_name"))) {
+                    int positionId = resultSet.getInt("position_id");
+                    PositionName positionName = PositionName.valueOf(resultSet.getString("position_name"));
+                    position = new Position(positionId, positionName);
+                }
+                Account account = new Account(id, username, fullName, email, department, position);
                 accounts.add(account);
             }
-
+            JDBCUtils.closeConnection(connection);
         } catch (Exception e) {
-
             e.printStackTrace();
-
-        } finally {
-
-            JDBCUtils.closeConnection();
         }
-
         return accounts;
     }
 
-
     @Override
-    public List<Account> findByUsername(
-            String username
-    ) {
-
-        List<Account> accounts =
-                new ArrayList<>();
-
+    public boolean create(Account account) {
+        Connection connection = null;
         try {
+            connection = JDBCUtils.getConnection();
+            String sql = "insert into account(email, username, full_name, department_id, position_id)\n" +
+                    "values (?, ?, ?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, account.getEmail());
+            statement.setString(2, account.getUsername());
+            statement.setString(3, account.getFullName());
+            statement.setInt(4, account.getDepartment().getId());
+            statement.setInt(5, account.getPosition().getId());
 
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "SELECT " +
-                            "a.id, " +
-                            "a.email, " +
-                            "a.username, " +
-                            "a.full_name, " +
-                            "a.create_date, " +
-                            "d.id AS department_id, " +
-                            "d.name AS department_name, " +
-                            "p.id AS position_id, " +
-                            "p.name AS position_name " +
-                            "FROM account a " +
-                            "LEFT JOIN department d " +
-                            "ON a.department_id = d.id " +
-                            "LEFT JOIN `position` p " +
-                            "ON a.position_id = p.id " +
-                            "WHERE a.username LIKE ?";
-
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
-
-            statement.setString(
-                    1,
-                    "%" + username + "%"
-            );
-
-            ResultSet resultSet =
-                    statement.executeQuery();
-
-            while (resultSet.next()) {
-
-                int id =
-                        resultSet.getInt("id");
-
-                String email =
-                        resultSet.getString("email");
-
-                String usernameResult =
-                        resultSet.getString("username");
-
-                String fullName =
-                        resultSet.getString("full_name");
-
-                java.sql.Date sqlDate =
-                        resultSet.getDate("create_date");
-
-                LocalDate createDate = null;
-
-                if (sqlDate != null) {
-                    createDate =
-                            sqlDate.toLocalDate();
-                }
-
-                Department department = null;
-
-                String departmentName =
-                        resultSet.getString(
-                                "department_name"
-                        );
-
-                if (departmentName != null) {
-
-                    department =
-                            new Department(
-                                    resultSet.getInt(
-                                            "department_id"
-                                    ),
-                                    departmentName
-                            );
-                }
-
-                Position position = null;
-
-                String positionName =
-                        resultSet.getString(
-                                "position_name"
-                        );
-
-                if (positionName != null) {
-
-                    position =
-                            new Position(
-                                    resultSet.getInt(
-                                            "position_id"
-                                    ),
-                                    Position.PositionName.valueOf(
-                                            positionName
-                                    )
-                            );
-                }
-
-                Account account =
-                        new Account(
-                                id,
-                                email,
-                                usernameResult,
-                                fullName,
-                                department,
-                                position,
-                                createDate
-                        );
-
-                accounts.add(account);
-            }
-
+            int c = statement.executeUpdate();
+            return c > 0;
         } catch (Exception e) {
-
             e.printStackTrace();
-
         } finally {
-
-            JDBCUtils.closeConnection();
+            JDBCUtils.closeConnection(connection);
         }
+        return false;
 
-        return accounts;
     }
 
-
-    // ==========================================
-    // Load toàn bộ Department
-    // ==========================================
-
     @Override
-    public List<Department> findAllDepartments() {
-
-        List<Department> departments =
-                new ArrayList<>();
-
+    public boolean update(int id, String username) {
+        Connection connection = null;
         try {
+            connection = JDBCUtils.getConnection();
+            String sql = "UPDATE account SET username = ? where account_id = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, username);
+            statement.setInt(2, id);
 
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "SELECT * FROM department";
-
-            Statement statement =
-                    connection.createStatement();
-
-            ResultSet resultSet =
-                    statement.executeQuery(sql);
-
-            while (resultSet.next()) {
-
-                Department department =
-                        new Department(
-                                resultSet.getInt("id"),
-                                resultSet.getString("name")
-                        );
-
-                departments.add(department);
-            }
+            int c = statement.executeUpdate();
+            return c > 0;
 
         } catch (Exception e) {
-
             e.printStackTrace();
-
         } finally {
-
-            JDBCUtils.closeConnection();
+            JDBCUtils.closeConnection(connection);
         }
-
-        return departments;
+        return false;
     }
 
-
-    // ==========================================
-    // Load toàn bộ Position
-    // ==========================================
-
     @Override
-    public List<Position> findAllPositions() {
-
-        List<Position> positions =
-                new ArrayList<>();
-
+    public boolean delete(int id) {
         try {
-
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "SELECT * FROM `position`";
-
-            Statement statement =
-                    connection.createStatement();
-
-            ResultSet resultSet =
-                    statement.executeQuery(sql);
-
-            while (resultSet.next()) {
-
-                Position position =
-                        new Position(
-                                resultSet.getInt("id"),
-                                Position.PositionName.valueOf(
-                                        resultSet.getString("name")
-                                )
-                        );
-
-                positions.add(position);
-            }
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        } finally {
-
-            JDBCUtils.closeConnection();
-        }
-
-        return positions;
-    }
-
-
-    // ==========================================
-    // Kiểm tra ID tồn tại
-    // ==========================================
-
-    @Override
-    public boolean existById(int id) {
-
-        try {
-
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "SELECT id " +
-                            "FROM account " +
-                            "WHERE id = ?";
-
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
-
+            Connection connection = JDBCUtils.getConnection();
+            String sql = "delete from account where account_id = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, id);
 
-            ResultSet resultSet =
-                    statement.executeQuery();
-
-            return resultSet.next();
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        } finally {
-
-            JDBCUtils.closeConnection();
-        }
-
-        return false;
-    }
-
-
-    // ==========================================
-    // Kiểm tra username tồn tại
-    // ==========================================
-
-    @Override
-    public boolean existByUsername(
-            String username
-    ) {
-
-        try {
-
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "SELECT username " +
-                            "FROM account " +
-                            "WHERE username = ?";
-
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
-
-            statement.setString(
-                    1,
-                    username
-            );
-
-            ResultSet resultSet =
-                    statement.executeQuery();
-
-            return resultSet.next();
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        } finally {
-
-            JDBCUtils.closeConnection();
-        }
-
-        return false;
-    }
-
-
-    // ==========================================
-    // Kiểm tra email tồn tại
-    // ==========================================
-
-    @Override
-    public boolean existByEmail(
-            String email
-    ) {
-
-        try {
-
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "SELECT email " +
-                            "FROM account " +
-                            "WHERE email = ?";
-
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
-
-            statement.setString(
-                    1,
-                    email
-            );
-
-            ResultSet resultSet =
-                    statement.executeQuery();
-
-            return resultSet.next();
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        } finally {
-
-            JDBCUtils.closeConnection();
-        }
-
-        return false;
-    }
-
-
-    // ==========================================
-    // Thêm Account
-    // ==========================================
-
-    @Override
-    public boolean save(Account account) {
-
-        try {
-
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "INSERT INTO account " +
-                            "(email, username, full_name, " +
-                            "department_id, position_id, create_date) " +
-                            "VALUES (?, ?, ?, ?, ?, ?)";
-
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
-
-            statement.setString(
-                    1,
-                    account.getEmail()
-            );
-
-            statement.setString(
-                    2,
-                    account.getUsername()
-            );
-
-            statement.setString(
-                    3,
-                    account.getFullName()
-            );
-
-            statement.setInt(
-                    4,
-                    account.getDepartment().getId()
-            );
-
-            statement.setInt(
-                    5,
-                    account.getPosition().getId()
-            );
-
-            statement.setDate(
-                    6,
-                    java.sql.Date.valueOf(
-                            account.getCreateDate()
-                    )
-            );
-
-            int c =
-                    statement.executeUpdate();
-
+            int c = statement.executeUpdate();
+            JDBCUtils.closeConnection(connection);
             return c > 0;
-
         } catch (Exception e) {
-
             e.printStackTrace();
-
-        } finally {
-
-            JDBCUtils.closeConnection();
         }
-
         return false;
     }
 
-
-    // ==========================================
-    // Xóa theo ID
-    // ==========================================
-
     @Override
-    public boolean deleteById(int id) {
-
+    public boolean checkIdExists(int id) {
+        Connection connection = null;
         try {
+            connection = JDBCUtils.getConnection();
+            String sql = "select * from account where account_id = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
 
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "DELETE FROM account " +
-                            "WHERE id = ?";
-
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
-
-            statement.setInt(
-                    1,
-                    id
-            );
-
-            int c =
-                    statement.executeUpdate();
-
-            return c > 0;
-
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                return true;
+            }
         } catch (Exception e) {
-
             e.printStackTrace();
-
         } finally {
-
-            JDBCUtils.closeConnection();
+            JDBCUtils.closeConnection(connection);
         }
-
         return false;
     }
 
-
-    // ==========================================
-    // Update username theo ID
-    // ==========================================
+    @Override
+    public boolean checkUsernameExists(String username, Integer id) {
+        Connection connection = null;
+        try {
+            connection = JDBCUtils.getConnection();
+            String sql = "select * from account where username = ?";
+            if (Objects.nonNull(id)) {// update
+                sql += " and account_id != ?";
+            }
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, username);
+            if (Objects.nonNull(id)) {
+                statement.setInt(2, id);
+            }
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            JDBCUtils.closeConnection(connection);
+        }
+        return false;
+    }
 
     @Override
-    public boolean updateUsername(
-            int id,
-            String username
-    ) {
-
+    public boolean checkEmailExists(String email, Integer id) {
+        Connection connection = null;
         try {
-
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "UPDATE account " +
-                            "SET username = ? " +
-                            "WHERE id = ?";
-
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
-
-            statement.setString(
-                    1,
-                    username
-            );
-
-            statement.setInt(
-                    2,
-                    id
-            );
-
-            int c =
-                    statement.executeUpdate();
-
-            return c > 0;
-
+            connection = JDBCUtils.getConnection();
+            String sql = "select * from account where email = ?";
+            if (Objects.nonNull(id)) {
+                sql += " and account_id != ?";
+            }
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, email);
+            if (Objects.nonNull(id)) {
+                statement.setInt(2, id);
+            }
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                return true;
+            }
         } catch (Exception e) {
-
             e.printStackTrace();
-
         } finally {
-
-            JDBCUtils.closeConnection();
+            JDBCUtils.closeConnection(connection);
         }
-
         return false;
+    }
+
+    @Override
+    public List<Account> findByUsername(String usernameSearch) {
+        List<Account> accounts = new ArrayList<>();
+        try {
+            Connection connection = JDBCUtils.getConnection();
+            //  select *
+            //	from account acc
+            //	left join department dep on acc.department_id = dep.department_id
+            //	left join `position` pos on acc.position_id = pos.position_id
+            //	where username like concat(v_username);
+
+            String sql = "{CALL find_by_username(?)}";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, usernameSearch);
+
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("account_id");
+                String username = resultSet.getString("username");
+                String fullName = resultSet.getString("full_name");
+                String email = resultSet.getString("email");
+
+                Department department = null;
+                Position position = null;
+                if (Objects.nonNull(resultSet.getString("department_id"))) {
+                    int departmentId = resultSet.getInt("department_id");
+                    String departmentName = resultSet.getString("department_name");
+                    department = new Department(departmentId, departmentName);
+                }
+                if (Objects.nonNull(resultSet.getString("position_name"))) {
+                    int positionId = resultSet.getInt("position_id");
+                    PositionName positionName = PositionName.valueOf(resultSet.getString("position_name"));
+                    position = new Position(positionId, positionName);
+                }
+                Account account = new Account(id, username, fullName, email, department, position);
+                accounts.add(account);
+            }
+            JDBCUtils.closeConnection(connection);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return accounts;
+
+    }
+
+    @Override
+    public void createAll(List<Account> accounts) {
+        Connection connection = null;
+        try {
+            connection = JDBCUtils.getConnection();
+            String sql = "insert into account(email, username, full_name, department_id, position_id)\n" +
+                    "values (?, ?, ?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            for (Account account : accounts) {
+                statement.setString(1, account.getEmail());
+                statement.setString(2, account.getUsername());
+                statement.setString(3, account.getFullName());
+                statement.setInt(4, account.getDepartment().getId());
+                statement.setInt(5, account.getPosition().getId());
+                statement.addBatch();
+            }
+
+            statement.executeBatch();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            JDBCUtils.closeConnection(connection);
+        }
     }
 }

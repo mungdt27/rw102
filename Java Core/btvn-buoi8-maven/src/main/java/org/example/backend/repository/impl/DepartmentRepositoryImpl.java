@@ -1,5 +1,6 @@
 package org.example.backend.repository.impl;
 
+
 import org.example.backend.repository.IDepartmentRepository;
 import org.example.entity.Department;
 import org.example.utils.JDBCUtils;
@@ -7,282 +8,112 @@ import org.example.utils.JDBCUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DepartmentRepositoryImpl
-        implements IDepartmentRepository {
+public class DepartmentRepositoryImpl implements IDepartmentRepository {
 
     @Override
     public List<Department> findAll() {
         List<Department> departments = new ArrayList<>();
-
+        Connection connection = null;
         try {
-            Connection connection = JDBCUtils.getConnection();
-            String sql = "SELECT * FROM department";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet resultSet = statement.executeQuery();
-
+            connection = JDBCUtils.getConnection();
+            String sql = "select * from department";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
-                Department department = new Department(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name")
-                );
+                int departmentId = resultSet.getInt("department_id");
+                String departmentName = resultSet.getString("department_name");
+                Department department = new Department(departmentId, departmentName);
                 departments.add(department);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            JDBCUtils.closeConnection();
+            JDBCUtils.closeConnection(connection);
         }
-
         return departments;
     }
 
     @Override
-    public boolean create(
-            Department department
-    ) {
+    public Department findById(int id) {
         Connection connection = null;
-
         try {
             connection = JDBCUtils.getConnection();
-            String sql = "INSERT INTO department (id, name) VALUES (?, ?)";
-
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
-            statement.setInt(1, department.getId());
-            statement.setString(2, department.getName());
-            int c = statement.executeUpdate();
-            return c > 0;
-
+            String sql = "select * from department where department_id = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int departmentId = resultSet.getInt("department_id");
+                String departmentName = resultSet.getString("department_name");
+                Department department = new Department(departmentId, departmentName);
+                return department;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            JDBCUtils.closeConnection();
+            JDBCUtils.closeConnection(connection);
         }
+        return null;
+    }
 
+    @Override
+    public boolean create(Department department) {
+        Connection connection = null;
+        try {
+            connection = JDBCUtils.getConnection();
+            String sql = "insert into department(department_name) values (?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, department.getName());
+            int c = statement.executeUpdate();
+            return c > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            JDBCUtils.closeConnection(connection);
+        }
         return false;
     }
 
     @Override
     public void createAll(List<Department> departments) {
-        for (Department department : departments) {
-            create(department);
+        Connection connection = null;
+        try {
+            connection = JDBCUtils.getConnection();
+            String sql = "insert into department(department_name) values (?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            for (Department dep: departments) {
+                statement.setString(1, dep.getName());
+                statement.addBatch();// theem dư lieu cân insert vao 1 lo
+            }
+            statement.executeBatch();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            JDBCUtils.closeConnection(connection);
         }
     }
 
     @Override
     public boolean existByName(String name) {
+        Connection connection = null;
         try {
-            Connection connection = JDBCUtils.getConnection();
-            String sql = "SELECT id FROM department WHERE name = ?";
-
+            connection = JDBCUtils.getConnection();
+            String sql = "select * from department where department_name=?";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, name.trim());
+            statement.setString(1, name);
             ResultSet resultSet = statement.executeQuery();
-
-            return resultSet.next();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            JDBCUtils.closeConnection();
-        }
-
-        return false;
-    }
-
-
-    @Override
-    public List<Department> findByName(
-            String name
-    ) {
-
-        List<Department> departments =
-                new ArrayList<>();
-
-        try {
-
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "SELECT * " +
-                            "FROM department " +
-                            "WHERE name LIKE ?";
-
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
-
-            statement.setString(
-                    1,
-                    "%" + name + "%"
-            );
-
-            ResultSet resultSet =
-                    statement.executeQuery();
-
-            while (resultSet.next()) {
-
-                int id =
-                        resultSet.getInt("id");
-
-                String departmentName =
-                        resultSet.getString("name");
-
-                Department department =
-                        new Department(
-                                id,
-                                departmentName
-                        );
-
-                departments.add(
-                        department
-                );
+            if (resultSet.next()) {
+                return true;
             }
-
         } catch (Exception e) {
-
             e.printStackTrace();
-
         } finally {
-
-            JDBCUtils.closeConnection();
+            JDBCUtils.closeConnection(connection);
         }
-
-        return departments;
-    }
-
-
-    @Override
-    public boolean insert(
-            Department department
-    ) {
-
-        try {
-
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "INSERT INTO department " +
-                            "(id, name) " +
-                            "VALUES (?, ?)";
-
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
-
-            statement.setInt(
-                    1,
-                    department.getId()
-            );
-
-            statement.setString(
-                    2,
-                    department.getName()
-            );
-
-            int c =
-                    statement.executeUpdate();
-
-            return c > 0;
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        } finally {
-
-            JDBCUtils.closeConnection();
-        }
-
-        return false;
-    }
-
-
-    @Override
-    public boolean deleteById(
-            int id
-    ) {
-
-        try {
-
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "DELETE FROM department " +
-                            "WHERE id = ?";
-
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
-
-            statement.setInt(
-                    1,
-                    id
-            );
-
-            int c =
-                    statement.executeUpdate();
-
-            return c > 0;
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        } finally {
-
-            JDBCUtils.closeConnection();
-        }
-
-        return false;
-    }
-
-
-    @Override
-    public boolean updateName(
-            int id,
-            String name
-    ) {
-
-        try {
-
-            Connection connection =
-                    JDBCUtils.getConnection();
-
-            String sql =
-                    "UPDATE department " +
-                            "SET name = ? " +
-                            "WHERE id = ?";
-
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
-
-            statement.setString(
-                    1,
-                    name
-            );
-
-            statement.setInt(
-                    2,
-                    id
-            );
-
-            int c =
-                    statement.executeUpdate();
-
-            return c > 0;
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        } finally {
-
-            JDBCUtils.closeConnection();
-        }
-
         return false;
     }
 }

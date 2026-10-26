@@ -1,233 +1,91 @@
 package org.example.frontend;
 
 import org.example.backend.controller.DepartmentController;
+import org.example.entity.Account;
 import org.example.entity.Department;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class DepartmentFunction {
 
+    private Scanner scanner;
     private DepartmentController departmentController;
-    private Scanner sc;
 
-    public DepartmentFunction(Scanner sc) {
-        this.sc = sc;
+    public DepartmentFunction() {
+        this.scanner = new Scanner(System.in);
         this.departmentController = new DepartmentController();
     }
 
-    // In danh sách Department dạng bảng
-    private void inDanhSachDepartment(List<Department> departments) {
-
-        System.out.println("+-----+--------------------+");
-        System.out.printf("|%5s|%20s|\n", "ID", "Department Name");
-        System.out.println("+-----+--------------------+");
-
-        for (Department department : departments) {
-            System.out.printf(
-                    "|%5d|%20s|\n",
-                    department.getId(),
-                    department.getName()
-            );
-        }
-
-        System.out.println("+-----+--------------------+");
-    }
-
-    // Question 1: Hiển thị Department
-    public void hienThiDepartment() {
-
-        System.out.println("==== HIỂN THỊ DEPARTMENT ====");
-
-        List<Department> departments =
-                departmentController.findAll();
-
-        if (departments.isEmpty()) {
-            System.out.println("Không có Department nào!");
-            return;
-        }
-
-        inDanhSachDepartment(departments);
-    }
-
-    // Question 2: Tìm kiếm Department theo tên
-    public void timKiemDepartment() {
-
-        System.out.println("==== TÌM KIẾM DEPARTMENT ====");
-        System.out.print("Nhập tên Department cần tìm: ");
-
-        String name = sc.nextLine().trim();
-
-        List<Department> departments =
-                departmentController.findByName(name);
-
-        if (departments.isEmpty()) {
-            System.out.println("Không có kết quả tương ứng!");
-            return;
-        }
-
-        inDanhSachDepartment(departments);
-    }
-
-    // Question 3: Thêm Department
-    public void themMoiDepartment() {
-
-        System.out.println("==== THÊM MỚI DEPARTMENT ====");
-
-        int id;
-
-        while (true) {
-            System.out.print("Nhập ID Department: ");
-
-            if (!sc.hasNextInt()) {
-                sc.nextLine();
-                System.err.println("ID phải là số! Nhập lại.");
-                continue;
-            }
-
-            id = sc.nextInt();
-            sc.nextLine();
-            break;
-        }
-
-        System.out.print("Nhập tên Department: ");
-        String name = sc.nextLine().trim();
-
-        if (name.isEmpty()) {
-            System.out.println("Tên Department không được để trống!");
-            return;
-        }
-
-        Department department = new Department(id, name);
-
-        boolean check = departmentController.insert(department);
-
-        if (check) {
-            System.out.println("Thêm Department thành công!");
-        } else {
-            System.out.println("Thêm Department thất bại!");
-        }
-    }
-
-    // Question 4: Xóa Department theo ID
-    public void xoaDepartment() {
-
-        System.out.println("==== XÓA DEPARTMENT THEO ID ====");
-
-        int id;
-
-        while (true) {
-            System.out.print("Nhập ID Department cần xóa: ");
-
-            if (!sc.hasNextInt()) {
-                sc.nextLine();
-                System.err.println("ID phải là số! Nhập lại.");
-                continue;
-            }
-
-            id = sc.nextInt();
-            sc.nextLine();
-            break;
-        }
-
-        boolean check = departmentController.deleteById(id);
-
-        if (check) {
-            System.out.println("Xóa Department thành công!");
-        } else {
-            System.out.println("Xóa Department không thành công!");
-        }
-    }
-
-    // Question 5: Update tên Department theo ID
-    public void updateTenDepartment() {
-
-        System.out.println("==== UPDATE TÊN DEPARTMENT THEO ID ====");
-
-        int id;
-
-        while (true) {
-            System.out.print("Nhập ID Department cần update: ");
-
-            if (!sc.hasNextInt()) {
-                sc.nextLine();
-                System.err.println("ID phải là số! Nhập lại.");
-                continue;
-            }
-
-            id = sc.nextInt();
-            sc.nextLine();
-            break;
-        }
-
-        System.out.print("Nhập tên Department mới: ");
-        String name = sc.nextLine().trim();
-
-        if (name.isEmpty()) {
-            System.out.println("Tên Department không được để trống!");
-            return;
-        }
-
-        boolean check = departmentController.updateName(id, name);
-
-        if (check) {
-            System.out.println("Update Department thành công!");
-        } else {
-            System.out.println("Update Department không thành công!");
-        }
-    }
-
-    // Question 6: Import dữ liệu từ file CSV
-    private void importCSV() {
-
-        System.out.println("==== IMPORT DỮ LIỆU DEPARTMENT TỪ FILE CSV ====");
-        System.out.print("Nhập đường dẫn file CSV: ");
-        String path = sc.nextLine();
-        String message = departmentController.importCSV(path);
-
-        System.out.println(message);
-    }
-    // Menu riêng cho Department
     public void menu() {
-
         while (true) {
-            System.out.println();
-            System.out.println("==== QUẢN LÝ DEPARTMENT ====");
-            System.out.println("1. Hiển thị Department.");
-            System.out.println("2. Tìm kiếm Department theo tên.");
-            System.out.println("3. Thêm mới Department.");
-            System.out.println("4. Xóa Department theo ID.");
-            System.out.println("5. Update tên Department theo ID.");
-            System.out.println("6. Import dữ liệu từ file CSV.");
-            System.out.println("7. Quay lại menu chính.");
-            System.out.print("Mời bạn chọn: ");
-
-            String choice = sc.nextLine();
-
+            System.out.println("==== Mời bạn chọn chức năng ====");
+            System.out.println("1. Hiển thị toàn bộ department");
+            System.out.println("2. Thêm department");
+            System.out.println("3. Xóa department theo id");
+            System.out.println("4. Update department theo id");
+            System.out.println("5. Import file CSV");
+            System.out.println("6. Thoát");
+            String choice = scanner.nextLine();
             switch (choice) {
                 case "1":
-                    hienThiDepartment();
+                    this.findAll();
                     break;
                 case "2":
-                    timKiemDepartment();
+                    this.create();
                     break;
                 case "3":
-                    themMoiDepartment();
+                    this.delete();
                     break;
                 case "4":
-                    xoaDepartment();
+                    this.update();
                     break;
                 case "5":
-                    updateTenDepartment();
-                    break;
-                case "6":
                     this.importCSV();
                     break;
-                case "7":
+                case "6":
                     return;
                 default:
-                    System.out.println("Chọn sai, chọn lại!");
+                    System.out.println("Chọn sai! Chọn lại!");
             }
         }
+    }
+
+    private void importCSV() {
+        System.out.println("==== CHỨC NĂNG IMPORT DEPARTMENT ====");
+        // C:\Users\PNV\Desktop\rw102\Java Core\csv\input_department.csv
+        System.out.println("Nhập đường dẫn file CSV: ");
+        String path = scanner.nextLine();
+        String message = departmentController.importCSV(path);
+        System.out.println(message);
+
+
+    }
+
+    private void update() {
+        System.out.println("==== CHỨC NĂNG UPDATE DEPARTMENT ====");
+    }
+
+    private void delete() {
+        System.out.println("==== CHỨC NĂNG XÓA DEPARTMENT ====");
+    }
+
+    private void create() {
+        System.out.println("==== CHỨC NĂNG TẠO MỚI DEPARTMENT ====");
+    }
+
+    private void findAll() {
+        System.out.println("==== HIỂN THỊ TOÀN BỘ DEPARTMENT ====");
+        List<Department> departments = departmentController.findAll();
+
+        System.out.println("+-----+-------------------------+");
+        System.out.printf("|%5s|%25s|\n", "ID", "Name");
+        System.out.println("+-----+-------------------------+");
+        for (Department dep : departments) {
+            System.out.printf("|%5s|%25s|\n", dep.getId(), dep.getName());
+        }
+        System.out.println("+-----+-------------------------+");
+
     }
 }

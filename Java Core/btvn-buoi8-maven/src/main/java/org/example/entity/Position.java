@@ -1,28 +1,30 @@
 package org.example.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Position {
-
-    private int id;
+    private Integer id;
     private PositionName name;
 
-    public enum PositionName {
-        DEV,
-        TEST,
-        SCRUM_MASTER,
-        PM
+    public Position() {
     }
 
-    @Override
-    public String toString() {
-        return "Position{" + "id=" + id + ", name=" + name + '}';
+    public Position(Integer id, PositionName name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public PositionName getName() {
+        return name;
+    }
+
+    public void setName(PositionName name) {
+        this.name = name;
     }
 }

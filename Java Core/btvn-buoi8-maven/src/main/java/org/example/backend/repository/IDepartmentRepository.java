@@ -5,29 +5,11 @@ import org.example.entity.Department;
 import java.util.List;
 
 public interface IDepartmentRepository {
-
     List<Department> findAll();
-
-    List<Department> findByName(
-            String name
-    );
-
+    Department findById(int id);
     boolean create(Department department);
 
     void createAll(List<Department> departments);
 
     boolean existByName(String name);
-
-    boolean insert(
-            Department department
-    );
-
-    boolean deleteById(
-            int id
-    );
-
-    boolean updateName(
-            int id,
-            String name
-    );
 }

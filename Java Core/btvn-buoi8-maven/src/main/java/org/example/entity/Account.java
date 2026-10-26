@@ -1,41 +1,90 @@
 package org.example.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 
 public class Account {
-
     private int id;
-    private String email;
     private String username;
     private String fullName;
+    private String email;
     private Department department;
     private Position position;
     private LocalDate createDate;
 
-    // Dùng khi thêm mới, id sẽ tự tăng
-    public Account(
-            String email,
-            String username,
-            String fullName,
-            Department department,
-            Position position,
-            LocalDate createDate
-    ) {
-        this.email = email;
+    public Account() {
+    }
+
+    public Account(int id, String username, String fullName, String email, Department department, Position position) {
+        this.id = id;
         this.username = username;
         this.fullName = fullName;
+        this.email = email;
         this.department = department;
         this.position = position;
+    }
+
+    public Account(String username, String fullName, String email, Department department, Position position) {
+        this.username = username;
+        this.fullName = fullName;
+        this.email = email;
+        this.department = department;
+        this.position = position;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
+
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
+    public LocalDate getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(LocalDate createDate) {
         this.createDate = createDate;
     }
 }

@@ -1,30 +1,20 @@
 package org.example.backend.repository;
 
 import org.example.entity.Account;
-import org.example.entity.Department;
-import org.example.entity.Position;
 
 import java.util.List;
 
 public interface IAccountRepository {
-
     List<Account> findAll();
+    boolean create(Account account);
+    boolean update(int id, String username);
+    boolean delete(int id);
+    boolean checkIdExists(int id);
+    boolean checkUsernameExists(String username, Integer id);
+    boolean checkEmailExists(String email, Integer id);
 
     List<Account> findByUsername(String username);
 
-    List<Department> findAllDepartments();
 
-    List<Position> findAllPositions();
-
-    boolean existById(int id);
-
-    boolean existByUsername(String username);
-
-    boolean existByEmail(String email);
-
-    boolean save(Account account);
-
-    boolean deleteById(int id);
-
-    boolean updateUsername(int id, String username);
+    void createAll(List<Account> accounts);
 }
