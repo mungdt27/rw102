@@ -9,6 +9,7 @@ import org.example.entity.Position;
 import org.example.utils.ScannerUtils;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -35,7 +36,12 @@ public class AccountFunction {
             System.out.println("5. Tìm kiếm theo username");
             System.out.println("6. Import file CSV");
             System.out.println("7. Thoát");
-            String choice = scanner.nextLine();
+            String choice;
+            try {
+                choice = scanner.nextLine();
+            } catch (NoSuchElementException e) {
+                return;
+            }
             switch (choice) {
                 case "1":
                     this.findAll();

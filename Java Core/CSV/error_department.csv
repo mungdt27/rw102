@@ -1,0 +1,6 @@
+department_name,error_messages
+123,Tên phòng ban phải từ 5-50 kí tự
+123456789012345678901234567890123456789012345678901234567890,Tên phòng ban phải từ 5-50 kí tự
+@1234445,Tên phòng ban chỉ được nhập số hoặc chữ
+      ,Tên phòng ban phải từ 5-50 kí tự-Tên phòng ban chỉ được nhập số hoặc chữ
+phòng ban 1,Tên phòng ban đã tồn tại

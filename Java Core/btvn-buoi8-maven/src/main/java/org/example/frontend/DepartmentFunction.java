@@ -5,6 +5,7 @@ import org.example.entity.Account;
 import org.example.entity.Department;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -27,7 +28,12 @@ public class DepartmentFunction {
             System.out.println("4. Update department theo id");
             System.out.println("5. Import file CSV");
             System.out.println("6. Thoát");
-            String choice = scanner.nextLine();
+            String choice;
+            try {
+                choice = scanner.nextLine();
+            } catch (NoSuchElementException e) {
+                return;
+            }
             switch (choice) {
                 case "1":
                     this.findAll();

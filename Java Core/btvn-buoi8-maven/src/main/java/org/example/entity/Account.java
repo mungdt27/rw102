@@ -32,6 +32,15 @@ public class Account {
         this.position = position;
     }
 
+    public Account(String email, String username, String fullName, Department department, Position position, LocalDate createDate) {
+        this.email = email;
+        this.username = username;
+        this.fullName = fullName;
+        this.department = department;
+        this.position = position;
+        this.createDate = createDate;
+    }
+
     public int getId() {
         return id;
     }

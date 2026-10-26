@@ -4,14 +4,20 @@ package org.example.backend.controller;
 import org.example.backend.service.IAccountService;
 import org.example.backend.service.impl.AccountServiceImpl;
 import org.example.entity.Account;
+import org.example.entity.Department;
+import org.example.entity.Position;
 
 import java.util.List;
 
 public class AccountController {
     private IAccountService service;
+    private DepartmentController departmentController;
+    private PositionController positionController;
 
     public AccountController() {
         this.service = new AccountServiceImpl();
+        this.departmentController = new DepartmentController();
+        this.positionController = new PositionController();
     }
 
     public List<Account> findAll() {
@@ -48,5 +54,25 @@ public class AccountController {
 
     public String importCSV(String path) {
         return service.importCSV(path);
+    }
+
+    public List<Department> findAllDepartments() {
+        return departmentController.findAll();
+    }
+
+    public List<Position> findAllPositions() {
+        return positionController.findAll();
+    }
+
+    public boolean save(Account account) {
+        return service.create(account);
+    }
+
+    public boolean deleteById(int id) {
+        return service.delete(id);
+    }
+
+    public boolean updateUsername(int id, String username) {
+        return service.update(id, username);
     }
 }

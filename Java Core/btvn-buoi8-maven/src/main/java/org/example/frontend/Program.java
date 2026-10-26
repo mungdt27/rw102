@@ -1,5 +1,6 @@
 package org.example.frontend;
 
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class Program {
@@ -13,7 +14,12 @@ public class Program {
             System.out.println("Mời bạn chọn chức năng");
             System.out.println("1. Làm việc với account");
             System.out.println("2. Làm việc với deparment");
-            String choice = scanner.nextLine();
+            String choice;
+            try {
+                choice = scanner.nextLine();
+            } catch (NoSuchElementException e) {
+                return;
+            }
             switch (choice) {
                 case "1":
                     accountFunction.menu();

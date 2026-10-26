@@ -1,0 +1,7 @@
+department_name,error_messages
+HR123455,Tên phòng ban đã tồn tại
+123,Tên phòng ban từ 5-50 kí tự
+123456789012345678901234567890123456789012345678901234567890,Tên phòng ban từ 5-50 kí tự
+@1234445,Tên phòng ban chỉ chứa số hoặc chữ
+      ,Tên phòng ban từ 5-50 kí tự
+phòng ban 1,Tên phong ban trong file bị trùng
